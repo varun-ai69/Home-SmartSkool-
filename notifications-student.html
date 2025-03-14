@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .notification-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            transition: transform 0.3s;
+        }
+
+        .notification-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .notification-card.unread {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .icon-academic {
+            background: #E0F2FE;
+            color: #0EA5E9;
+        }
+
+        .icon-assignment {
+            background: #FEF3C7;
+            color: var(--warning-color);
+        }
+
+        .icon-exam {
+            background: #FEE2E2;
+            color: var(--danger-color);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-light);
+            background: transparent;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+        }
+
+        .load-more {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .load-more-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .load-more-btn:hover {
+            background: var(--bg-light);
+        }
+
+        .notification-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .badge-urgent {
+            background: #FEE2E2;
+            color: var(--danger-color);
+        }
+
+        .badge-info {
+            background: #E0F2FE;
+            color: #0EA5E9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .notifications-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .filter-buttons {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your existing sidebar here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+    
+        <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="notifications-header">
+            <h1>Notifications</h1>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="notificationManager.filterNotifications('all')">
+                    All
+                </button>
+                <button class="filter-btn" onclick="notificationManager.filterNotifications('unread')">
+                    Unread
+                </button>
+                <button class="filter-btn" onclick="notificationManager.filterNotifications('academic')">
+                    Academic
+                </button>
+                <button class="filter-btn" onclick="notificationManager.filterNotifications('assignment')">
+                    Assignment
+                </button>
+                <button class="filter-btn" onclick="notificationManager.filterNotifications('exam')">
+                    Exam
+                </button>
+            </div>
+        </div>
+
+        <div class="notifications-list" id="notificationsList"></div>
+
+        <div class="load-more">
+            <button class="load-more-btn" onclick="notificationManager.loadMoreNotifications()">
+                Load More
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class NotificationManager {
+            constructor() {
+                this.notifications = [
+                    {
+                        id: 1,
+                        type: 'academic',
+                        title: 'Course Registration Open',
+                        message: 'Course registration for the next semester is now open. Please complete your registration before the deadline.',
+                        timestamp: new Date('2024-03-01T10:00:00'),
+                        unread: true,
+                        urgent: true
+                    },
+                    {
+                        id: 2,
+                        type: 'assignment',
+                        title: 'New Assignment Posted',
+                        message: 'A new assignment has been posted for Mathematics. Due date: March 15, 2024',
+                        timestamp: new Date('2024-02-28T15:30:00'),
+                        unread: true,
+                        urgent: false
+                    },
+                    {
+                        id: 3,
+                        type: 'exam',
+                        title: 'Exam Schedule Updated',
+                        message: 'The final exam schedule has been updated. Please check your exam dates.',
+                        timestamp: new Date('2024-02-27T09:15:00'),
+                        unread: false,
+                        urgent: true
+                    }
+                ];
+
+                this.currentFilter = 'all';
+                this.page = 1;
+                this.perPage = 10;
+
+                this.renderNotifications();
+                this.initializeNotificationListener();
+            }
+
+            renderNotifications() {
+                const filteredNotifications = this.filterNotificationsByType();
+                const notificationsList = document.getElementById('notificationsList');
+
+                if (filteredNotifications.length === 0) {
+                    notificationsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-bell-slash"></i>
+                            <p>No notifications found</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                notificationsList.innerHTML = filteredNotifications
+                    .slice(0, this.page * this.perPage)
+                    .map(notification => `
+                        <div class="notification-card ${notification.unread ? 'unread' : ''}" 
+                             data-id="${notification.id}">
+                            <div class="notification-icon icon-${notification.type}">
+                                <i class="fas ${this.getNotificationIcon(notification.type)}"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">
+                                    ${notification.title}
+                                    ${notification.urgent ? 
+                                        '<span class="notification-badge badge-urgent">Urgent</span>' : 
+                                        ''}
+                                </div>
+                                <div class="notification-message">${notification.message}</div>
+                                <div class="notification-time">
+                                    ${this.formatTimeAgo(notification.timestamp)}
+                                </div>
+                            </div>
+                            <div class="notification-actions">
+                                <button class="action-btn" 
+                                        onclick="notificationManager.markAsRead(${notification.id})">
+                                    <i class="fas ${notification.unread ? 'fa-envelope-open' : 'fa-envelope'}"></i>
+                                </button>
+                                <button class="action-btn" 
+                                        onclick="notificationManager.deleteNotification(${notification.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                // Update load more button visibility
+                document.querySelector('.load-more').style.display = 
+                    filteredNotifications.length > this.page * this.perPage ? 'block' : 'none';
+            }
+
+            getNotificationIcon(type) {
+                switch (type) {
+                    case 'academic': return 'fa-graduation-cap';
+                    case 'assignment': return 'fa-book';
+                    case 'exam': return 'fa-file-alt';
+                    default: return 'fa-bell';
+                }
+            }
+
+            formatTimeAgo(date) {
+                const seconds = Math.floor((new Date() - date) / 1000);
+                const intervals = {
+                    year: 31536000,
+                    month: 2592000,
+                    week: 604800,
+                    day: 86400,
+                    hour: 3600,
+                    minute: 60
+                };
+
+                for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                    const interval = Math.floor(seconds / secondsInUnit);
+                    if (interval >= 1) {
+                        return `${interval} ${unit}${interval === 1 ? '' : 's'} ago`;
+                    }
+                }
+                return 'Just now';
+            }
+
+            filterNotifications(type) {
+                this.currentFilter = type;
+                this.page = 1;
+                
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`.filter-btn:nth-child(${
+                    type === 'all' ? 1 : 
+                    type === 'unread' ? 2 : 
+                    type === 'academic' ? 3 : 
+                    type === 'assignment' ? 4 : 5
+                })`).classList.add('active');
+
+                this.renderNotifications();
+            }
+
+            filterNotificationsByType() {
+                return this.notifications.filter(notification => {
+                    if (this.currentFilter === 'all') return true;
+                    if (this.currentFilter === 'unread') return notification.unread;
+                    return notification.type === this.currentFilter;
+                });
+            }
+
+            markAsRead(id) {
+                const notification = this.notifications.find(n => n.id === id);
+                if (notification) {
+                    notification.unread = !notification.unread;
+                    this.renderNotifications();
+                    this.updateUnreadCount();
+                }
+            }
+
+            deleteNotification(id) {
+                if (confirm('Are you sure you want to delete this notification?')) {
+                    this.notifications = this.notifications.filter(n => n.id !== id);
+                    this.renderNotifications();
+                    this.updateUnreadCount();
+                }
+            }
+
+            loadMoreNotifications() {
+                this.page++;
+                this.renderNotifications();
+            }
+
+            updateUnreadCount() {
+                const unreadCount = this.notifications.filter(n => n.unread).length;
+                // Update unread count in sidebar or header if needed
+            }
+
+            initializeNotificationListener() {
+                // Simulate receiving new notifications
+                setInterval(() => {
+                    if (Math.random() > 0.8) { // 20% chance of new notification
+                        this.addNewNotification({
+                            id: this.notifications.length + 1,
+                            type: ['academic', 'assignment', 'exam'][Math.floor(Math.random() * 3)],
+                            title: 'New Notification',
+                            message: 'This is a new notification message.',
+                            timestamp: new Date(),
+                            unread: true,
+                            urgent: Math.random() > 0.7
+                        });
+                    }
+                }, 30000); // Check every 30 seconds
+            }
+
+            addNewNotification(notification) {
+                this.notifications.unshift(notification);
+                this.renderNotifications();
+                this.updateUnreadCount();
+                this.showNotificationAlert(notification);
+            }
+
+            showNotificationAlert(notification) {
+                const alert = document.createElement('div');
+                alert.style.position = 'fixed';
+                alert.style.top = '20px';
+                alert.style.right = '20px';
+                alert.style.background = 'white';
+                alert.style.padding = '15px 25px';
+                alert.style.borderRadius = '8px';
+                alert.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                alert.style.zIndex = '1000';
+                alert.innerHTML = `
+                    <div style="font-weight: 600; margin-bottom: 5px;">${notification.title}</div>
+                    <div style="font-size: 14px; color: var(--text-light);">${notification.message}</div>
+                `;
+
+                document.body.appendChild(alert);
+                setTimeout(() => alert.remove(), 5000);
+            }
+        }
+
+        // Initialize notification manager
+        const notificationManager = new NotificationManager();
+
+// Enable desktop notifications if supported
+if ('Notification' in window) {
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            console.log('Desktop notifications enabled');
+        }
+    });
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey) {
+        switch(e.key) {
+            case 'r': // Ctrl + R to mark all as read
+                e.preventDefault();
+                notificationManager.notifications.forEach(n => n.unread = false);
+                notificationManager.renderNotifications();
+                break;
+            case 'f': // Ctrl + F to focus search
+                e.preventDefault();
+                document.querySelector('.search-input')?.focus();
+                break;
+        }
+    }
+});
+
+// Add swipe gestures for mobile
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.getElementById('notificationsList').addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+});
+
+document.getElementById('notificationsList').addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const SWIPE_THRESHOLD = 50;
+    const swipeDistance = touchEndX - touchStartX;
+
+    if (Math.abs(swipeDistance) > SWIPE_THRESHOLD) {
+        const notification = document.elementFromPoint(touchEndX, touchStartY)
+            ?.closest('.notification-card');
+        
+        if (notification) {
+            const notificationId = parseInt(notification.dataset.id);
+            if (swipeDistance > 0) {
+                // Swipe right to mark as read
+                notificationManager.markAsRead(notificationId);
+            } else {
+                // Swipe left to delete
+                notificationManager.deleteNotification(notificationId);
+            }
+        }
+    }
+}
+</script>
+</body>
+</html>

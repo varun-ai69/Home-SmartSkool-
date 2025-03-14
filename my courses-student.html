@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --shadow-color: rgba(59, 130, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Your existing sidebar CSS here */
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .courses-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .filter-dropdown {
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-image {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .course-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .course-content {
+            padding: 20px;
+        }
+
+        .course-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .course-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .course-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .course-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+            @media (max-width: 768px) {
+    .main-content {
+        width: 100%;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Your existing sidebar HTML here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+    
+        <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="courses-header">
+            <h1>My Courses</h1>
+            <button class="btn btn-primary" onclick="courseManager.showEnrollModal()">
+                <i class="fas fa-plus"></i> Enroll New Course
+            </button>
+        </div>
+
+        <div class="search-filters">
+            <div class="search-box">
+                <input type="text" placeholder="Search courses..." id="courseSearch">
+                <i class="fas fa-search"></i>
+            </div>
+            <select class="filter-dropdown" id="semesterFilter">
+                <option value="all">All Semesters</option>
+                <option value="current">Current Semester</option>
+                <option value="previous">Previous Semesters</option>
+            </select>
+            <select class="filter-dropdown" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+                <option value="upcoming">Upcoming</option>
+            </select>
+        </div>
+
+        <div class="courses-grid" id="coursesGrid"></div>
+    </div>
+
+    <div class="modal" id="courseModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        class CourseManager {
+            constructor() {
+                this.courses = [
+                {
+            id: 1,
+            title: "Advanced Web Development",
+            instructor: "Dr. Sarah Johnson",
+            semester: "current",
+            status: "ongoing",
+            progress: 65,
+            credits: 4,
+            duration: "16 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 8,
+            quizzes: 4
+        },
+        {
+            id: 2,
+            title: "Data Structures & Algorithms",
+            instructor: "Prof. Michael Chen",
+            semester: "current",
+            status: "ongoing",
+            progress: 45,
+            credits: 4,
+            duration: "16 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 10,
+            quizzes: 6
+        },
+        {
+            id: 3,
+            title: "Database Management Systems",
+            instructor: "Dr. Emily Brown",
+            semester: "current",
+            status: "ongoing",
+            progress: 75,
+            credits: 3,
+            duration: "12 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 6,
+            quizzes: 3
+        },
+        {
+            id: 4,
+            title: "Software Engineering Principles",
+            instructor: "Prof. David Wilson",
+            semester: "previous",
+            status: "completed",
+            progress: 100,
+            credits: 4,
+            duration: "16 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 12,
+            quizzes: 5
+        },
+        {
+            id: 5,
+            title: "Artificial Intelligence",
+            instructor: "Dr. Lisa Anderson",
+            semester: "upcoming",
+            status: "upcoming",
+            progress: 0,
+            credits: 4,
+            duration: "16 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 8,
+            quizzes: 4
+        },
+        {
+            id: 6,
+            title: "Computer Networks",
+            instructor: "Prof. Robert Taylor",
+            semester: "current",
+            status: "ongoing",
+            progress: 30,
+            credits: 3,
+            duration: "12 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 7,
+            quizzes: 3
+        },
+        {
+            id: 7,
+            title: "Operating Systems",
+            instructor: "Dr. James Martinez",
+            semester: "previous",
+            status: "completed",
+            progress: 100,
+            credits: 4,
+            duration: "16 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 9,
+            quizzes: 5
+        },
+        {
+            id: 8,
+            title: "Mobile App Development",
+            instructor: "Prof. Rachel Kim",
+            semester: "upcoming",
+            status: "upcoming",
+            progress: 0,
+            credits: 3,
+            duration: "12 weeks",
+            image: "https://via.placeholder.com/300x180",
+            assignments: 6,
+            quizzes: 3
+        },
+                    // Add more course objects here
+                ];
+
+                this.initializeEventListeners();
+                this.renderCourses();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('courseSearch').addEventListener('input', () => this.filterCourses());
+                document.getElementById('semesterFilter').addEventListener('change', () => this.filterCourses());
+                document.getElementById('statusFilter').addEventListener('change', () => this.filterCourses());
+                
+                document.querySelector('.modal-close').addEventListener('click', () => {
+                    document.getElementById('courseModal').style.display = 'none';
+                });
+            }
+
+            filterCourses() {
+                const searchTerm = document.getElementById('courseSearch').value.toLowerCase();
+                const semesterFilter = document.getElementById('semesterFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+
+                const filteredCourses = this.courses.filter(course => {
+                    const matchesSearch = course.title.toLowerCase().includes(searchTerm);
+                    const matchesSemester = semesterFilter === 'all' || course.semester === semesterFilter;
+                    const matchesStatus = statusFilter === 'all' || course.status === statusFilter;
+                    return matchesSearch && matchesSemester && matchesStatus;
+                });
+
+                this.renderCourses(filteredCourses);
+            }
+
+            renderCourses(coursesToRender = this.courses) {
+                const grid = document.getElementById('coursesGrid');
+                grid.innerHTML = coursesToRender.map(course => `
+                    <div class="course-card">
+                        <div class="course-image">
+                            <img src="${course.image}" alt="${course.title}">
+                            <span class="course-status">${course.status.charAt(0).toUpperCase() + course.status.slice(1)}</span>
+                        </div>
+                        <div class="course-content">
+                            <h3 class="course-title">${course.title}</h3>
+                            <div class="course-info">
+                                <span>${course.instructor}</span>
+                                <span>${course.credits} Credits</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${course.progress}%"></div>
+                            </div>
+                            <div class="course-footer">
+                                <div class="course-stats">
+                                    <div class="stat">
+                                        <i class="fas fa-tasks"></i>
+                                        <span>${course.assignments}</span>
+                                    </div>
+                                    <div class="stat">
+                                        <i class="fas fa-question-circle"></i>
+                                        <span>${course.quizzes}</span>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="courseManager.viewCourseDetails(${course.id})">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            viewCourseDetails(courseId) {
+                const course = this.courses.find(c => c.id === courseId);
+                if (course) {
+                    document.getElementById('modalContent').innerHTML = `
+                        <h2>${course.title}</h2>
+                        <p><strong>Instructor:</strong> ${course.instructor}</p>
+                        <p><strong>Duration:</strong> ${course.duration}</p>
+                        <p><strong>Credits:</strong> ${course.credits}</p>
+                        <p><strong>Progress:</strong> ${course.progress}%</p>
+                        <!-- Add more course details here -->
+                    `;
+                    document.getElementById('courseModal').style.display = 'flex';
+                }
+            }
+
+            showEnrollModal() {
+                // Implement course enrollment functionality
+                alert('Course enrollment feature coming soon!');
+            }
+        }
+
+        const courseManager = new CourseManager();
+
+        // Handle sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').style.marginLeft = 
+                document.getElementById('sidebar').classList.contains('collapsed') ? '70px' : '270px';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Root Variables */
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --shadow-color: rgba(59, 130, 246, 0.3);
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Include your existing sidebar CSS here */
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .assignments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .filter-dropdown {
+            padding: 12px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .assignments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .assignment-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .assignment-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .assignment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .assignment-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-right: 15px;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #FEF3C7;
+            color: var(--warning-color);
+        }
+
+        .status-submitted {
+            background: #D1FAE5;
+            color: var(--success-color);
+        }
+
+        .status-overdue {
+            background: #FEE2E2;
+            color: var(--danger-color);
+        }
+
+        .assignment-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .assignment-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .file-upload {
+            border: 2px dashed var(--border-color);
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background: var(--bg-light);
+        }
+
+        .file-upload i {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .assignments-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .search-filters {
+                flex-direction: column;
+            }
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your existing sidebar HTML here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="assignments-header">
+            <h1>My Assignments</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="assignmentManager.showCalendarView()">
+                    <i class="fas fa-calendar"></i> Calendar View
+                </button>
+            </div>
+        </div>
+
+        <div class="search-filters">
+            <div class="search-box">
+                <input type="text" placeholder="Search assignments..." id="assignmentSearch">
+                <i class="fas fa-search"></i>
+            </div>
+            <select class="filter-dropdown" id="courseFilter">
+                <option value="all">All Courses</option>
+                <option value="web">Web Development</option>
+                <option value="data">Data Structures</option>
+                <option value="db">Database Management</option>
+            </select>
+            <select class="filter-dropdown" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="submitted">Submitted</option>
+                <option value="overdue">Overdue</option>
+            </select>
+        </div>
+
+        <div class="assignments-grid" id="assignmentsGrid"></div>
+    </div>
+
+    <div class="modal" id="assignmentModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        class AssignmentManager {
+            constructor() {
+                this.assignments = [
+                    {
+                        id: 1,
+                        title: "Web Application Development Project",
+                        course: "Advanced Web Development",
+                        dueDate: "2024-03-15",
+                        status: "pending",
+                        progress: 65,
+                        maxMarks: 100,
+                        description: "Build a full-stack web application using modern technologies."
+                    },
+                    {
+                        id: 2,
+                        title: "Binary Search Tree Implementation",
+                        course: "Data Structures",
+                        dueDate: "2024-03-10",
+                        status: "submitted",
+                        progress: 100,
+                        maxMarks: 50,
+                        description: "Implement a binary search tree with basic operations."
+                    },
+                    {
+                        id: 3,
+                        title: "Database Design Project",
+                        course: "Database Management",
+                        dueDate: "2024-02-28",
+                        status: "overdue",
+                        progress: 30,
+                        maxMarks: 75,
+                        description: "Design and implement a database for a hospital management system."
+                    },
+                    {
+                        id: 4,
+                        title: "RESTful API Development",
+                        course: "Web Development",
+                        dueDate: "2024-03-20",
+                        status: "pending",
+                        progress: 45,
+                        maxMarks: 80,
+                        description: "Create a RESTful API for a social media platform."
+                    },
+                    {
+                        id: 5,
+                        title: "Sorting Algorithms Analysis",
+                        course: "Data Structures",
+                        dueDate: "2024-03-25",
+                        status: "pending",
+                        progress: 20,
+                        maxMarks: 60,
+                        description: "Analyze and compare different sorting algorithms."
+                    }
+                ];
+
+                this.initializeEventListeners();
+                this.renderAssignments();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('assignmentSearch').addEventListener('input', () => this.filterAssignments());
+                document.getElementById('courseFilter').addEventListener('change', () => this.filterAssignments());
+                document.getElementById('statusFilter').addEventListener('change', () => this.filterAssignments());
+                
+                document.querySelector('.modal-close').addEventListener('click', () => {
+                    document.getElementById('assignmentModal').style.display = 'none';
+                });
+            }
+
+            filterAssignments() {
+                const searchTerm = document.getElementById('assignmentSearch').value.toLowerCase();
+                const courseFilter = document.getElementById('courseFilter').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+
+                const filteredAssignments = this.assignments.filter(assignment => {
+                    const matchesSearch = assignment.title.toLowerCase().includes(searchTerm) ||
+                                        assignment.course.toLowerCase().includes(searchTerm);
+                    const matchesCourse = courseFilter === 'all' || assignment.course.toLowerCase().includes(courseFilter);
+                    const matchesStatus = statusFilter === 'all' || assignment.status === statusFilter;
+                    return matchesSearch && matchesCourse && matchesStatus;
+                });
+
+                this.renderAssignments(filteredAssignments);
+            }
+
+            renderAssignments(assignmentsToRender = this.assignments) {
+                const grid = document.getElementById('assignmentsGrid');
+                grid.innerHTML = assignmentsToRender.map(assignment => `
+                    <div class="assignment-card">
+                        <div class="assignment-header">
+                            <h3 class="assignment-title">${assignment.title}</h3>
+                            <span class="status-badge status-${assignment.status}">
+                                ${assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
+                            </span>
+                        </div>
+                        <div class="assignment-info">
+                            <div class="info-item">
+                                <i class="fas fa-book"></i>
+                                <span>${assignment.course}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Due: ${new Date(assignment.dueDate).toLocaleDateString()}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-star"></i>
+                                <span>Max Marks: ${assignment.maxMarks}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Progress: ${assignment.progress}%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${assignment.progress}%"></div>
+                        </div>
+                        <div class="assignment-footer">
+                            <button class="btn btn-outline" onclick="assignmentManager.viewDetails(${assignment.id})">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                            ${assignment.status !== 'submitted' ? `
+                                <button class="btn btn-primary" onclick="assignmentManager.submitAssignment(${assignment.id})">
+                                    <i class="fas fa-upload"></i> Submit
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            viewDetails(assignmentId) {
+                const assignment = this.assignments.find(a => a.id === assignmentId);
+                if (assignment) {
+                    document.getElementById('modalContent').innerHTML = `
+                        <h2>${assignment.title}</h2>
+                        <p class="info-item"><strong>Course:</strong> ${assignment.course}</p>
+                        <p class="info-item"><strong>Due Date:</strong> ${new Date(assignment.dueDate).toLocaleDateString()}</p>
+                        <p class="info-item"><strong>Status:</strong> ${assignment.status}</p>
+                                                <p class="info-item"><strong>Max Marks:</strong> ${assignment.maxMarks}</p>
+                        <p class="info-item"><strong>Progress:</strong> ${assignment.progress}%</p>
+                        <p class="info-item"><strong>Description:</strong> ${assignment.description}</p>
+                        
+                        ${assignment.status !== 'submitted' ? `
+                            <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drop your files here or click to upload</p>
+                                <input type="file" id="fileInput" style="display: none" multiple>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%" onclick="assignmentManager.submitAssignment(${assignment.id})">
+                                Submit Assignment
+                            </button>
+                        ` : `
+                            <div style="text-align: center; padding: 20px; background: #D1FAE5; border-radius: 10px; margin-top: 20px;">
+                                <i class="fas fa-check-circle" style="color: #10B981; font-size: 24px;"></i>
+                                <p style="color: #10B981; margin-top: 10px;">Assignment submitted successfully!</p>
+                            </div>
+                        `}
+                    `;
+                    document.getElementById('assignmentModal').style.display = 'flex';
+                }
+            }
+
+            submitAssignment(assignmentId) {
+                const assignment = this.assignments.find(a => a.id === assignmentId);
+                if (assignment) {
+                    assignment.status = 'submitted';
+                    assignment.progress = 100;
+                    this.renderAssignments();
+                    document.getElementById('assignmentModal').style.display = 'none';
+                }
+            }
+
+            showCalendarView() {
+                // Calendar view implementation
+                alert('Calendar view coming soon!');
+            }
+        }
+
+        // Initialize assignment manager
+        const assignmentManager = new AssignmentManager();
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            const modal = document.getElementById('assignmentModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        // File upload handling
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                fileInput.addEventListener('change', (e) => {
+                    const files = Array.from(e.target.files);
+                    if (files.length > 0) {
+                        alert(`Selected files: ${files.map(f => f.name).join(', ')}`);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

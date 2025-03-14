@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overdue Books - Library System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --sidebar-width: 250px;
+            --danger-color: #ff4757;
+            --warning-color: #ffa502;
+            --success-color: #00b894;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            display: flex;
+            background: #f8f9fa;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--primary-color);
+            color: rgb(255, 255, 255);
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            padding: 5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background 0.3s;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--danger-color);
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 5px 10px;
+            font-size: 16px;
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            min-width: 150px;
+        }
+
+        .overdue-table {
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .overdue-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .overdue-table th,
+        .overdue-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .overdue-table th {
+            background: #f8f9fa;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .overdue-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .days-overdue {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .fine-amount {
+            color: var(--warning-color);
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .btn-primary { background: var(--primary-color); }
+        .btn-danger { background: var(--danger-color); }
+        .btn-warning { background: var(--warning-color); }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: white;
+        }
+
+        .high { background: var(--danger-color); }
+        .medium { background: var(--warning-color); }
+        .low { background: var(--success-color); }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .search-section {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Library System</h2><br>
+        <nav>
+            <a href="index-librarian.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="books management system-libraian.html" class="nav-item">
+                <i class="fas fa-book"></i>
+                <span>Books Management</span>
+            </a>
+            <a href="members-libranian.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Members</span>
+            </a>
+            <a href="issue-return-libranian.html" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Issue/Return</span>
+            </a>
+            <a href="overduebooks-libranian.html" class="nav-item">
+                <i class="fas fa-clock"></i>
+                <span>Overdue Books</span>
+            </a>
+            <a href="reports-libranian.html" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+            <a href="index-teacher.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Teacher Dashboard</a>
+            <a href="setting-libranian.html" class="nav-item active">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a> 
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Overdue Books</h1>
+            <button class="btn btn-primary" onclick="overdueManager.sendBulkReminders()">
+                <i class="fas fa-envelope"></i> Send Bulk Reminders
+            </button>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3 id="totalOverdue">0</h3>
+                <p>Total Overdue</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalFines">$0</h3>
+                <p>Total Fines</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="criticalOverdue">0</h3>
+                <p>Critical Overdue (>30 days)</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="remindersToday">0</h3>
+                <p>Reminders Sent Today</p>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by book title, member name or ID...">
+            </div>
+            <select class="filter-select" id="priorityFilter">
+                <option value="">All Priorities</option>
+                <option value="high">High Priority (>30 days)</option>
+                <option value="medium">Medium Priority (15-30 days)</option>
+                <option value="low">Low Priority (<15 days)</option>
+            </select>
+            <select class="filter-select" id="sortBy">
+                <option value="days">Sort by Days Overdue</option>
+                <option value="fine">Sort by Fine Amount</option>
+                <option value="name">Sort by Member Name</option>
+            </select>
+        </div>
+
+        <div class="overdue-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Member Details</th>
+                        <th>Book Title</th>
+                        <th>Due Date</th>
+                        <th>Days Overdue</th>
+                        <th>Fine Amount</th>
+                        <th>Priority</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="overdueTableBody">
+                    <!-- Overdue entries will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        class OverdueManager {
+            constructor() {
+                this.overdueBooks = [
+                    {
+                        id: 1,
+                        memberId: "M001",
+                        memberName: "John Doe",
+                        memberEmail: "john@example.com",
+                        memberPhone: "123-456-7890",
+                        bookId: "B001",
+                        bookTitle: "The Great Gatsby",
+                        dueDate: "2024-01-15",
+                        remindersSent: 2
+                    }
+                ];
+                this.initializeEventListeners();
+                this.renderOverdueBooks();
+                this.updateStats();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.filterOverdueBooks(e.target.value);
+                });
+
+                document.getElementById('priorityFilter').addEventListener('change', () => {
+                    this.applyFilters();
+                });
+
+                document.getElementById('sortBy').addEventListener('change', () => {
+                    this.applySort();
+                });
+            }
+
+            calculateDaysOverdue(dueDate) {
+                const due = new Date(dueDate);
+                const today = new Date();
+                return Math.floor((today - due) / (1000 * 60 * 60 * 24));
+            }
+
+            calculateFine(daysOverdue) {
+                const baseRate = 0.50; // $0.50 per day
+                const maxFine = 50; // Maximum fine amount
+                return Math.min(daysOverdue * baseRate, maxFine);
+            }
+
+            getPriority(daysOverdue) {
+                if (daysOverdue > 30) return 'high';
+                if (daysOverdue > 15) return 'medium';
+                return 'low';
+            }
+
+            renderOverdueBooks(filteredBooks = this.overdueBooks) {
+                const tbody = document.getElementById('overdueTableBody');
+                tbody.innerHTML = filteredBooks.map(book => {
+                    const daysOverdue = this.calculateDaysOverdue(book.dueDate);
+                    const fine = this.calculateFine(daysOverdue);
+                    const priority = this.getPriority(daysOverdue);
+
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${book.memberName}</strong><br>
+                                <small>ID: ${book.memberId}</small>
+                            </td>
+                            <td>${book.bookTitle}</td>
+                            <td>${new Date(book.dueDate).toLocaleDateString()}</td>
+                            <td class="days-overdue">${daysOverdue} days</td>
+                            <td class="fine-amount">$${fine.toFixed(2)}</td>
+                            <td>
+                                <span class="notification-badge ${priority}">
+                                    ${priority}
+                                </span>
+                            </td>
+                            <td class="action-buttons">
+                                <button class="btn btn-warning" onclick="overdueManager.sendReminder(${book.id})">
+                                    <i class="fas fa-bell"></i> Remind
+                                </button>
+                                <button class="btn btn-primary" onclick="overdueManager.viewDetails(${book.id})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            updateStats() {
+                const totalOverdue = this.overdueBooks.length;
+                const totalFines = this.overdueBooks.reduce((acc, book) => {
+                    return acc + this.calculateFine(this.calculateDaysOverdue(book.dueDate));
+                }, 0);
+                const criticalOverdue = this.overdueBooks.filter(book => 
+                    this.calculateDaysOverdue(book.dueDate) > 30
+                ).length;
+
+                document.getElementById('totalOverdue').textContent = totalOverdue;
+                document.getElementById('totalFines').textContent = `$${totalFines.toFixed(2)}`;
+                document.getElementById('criticalOverdue').textContent = criticalOverdue;
+                document.getElementById('remindersToday').textContent = 
+                    this.overdueBooks.reduce((acc, book) => acc + book.remindersSent, 0);
+            }
+
+            filterOverdueBooks(query) {
+                const filtered = this.overdueBooks.filter(book => 
+                    book.memberName.toLowerCase().includes(query.toLowerCase()) ||
+                    book.memberId.toLowerCase().includes(query.toLowerCase()) ||
+                    book.bookTitle.toLowerCase().includes(query.toLowerCase())
+                );
+                this.renderOverdueBooks(filtered);
+            }
+
+            applyFilters() {
+                const priority = document.getElementById('priorityFilter').value;
+                let filtered = [...this.overdueBooks];
+
+                if (priority) {
+                    filtered = filtered.filter(book => {
+                        const daysOverdue = this.calculateDaysOverdue(book.dueDate);
+                        return this.getPriority(daysOverdue) === priority;
+                    });
+                }
+
+                this.renderOverdueBooks(filtered);
+            }
+
+            applySort() {
+                const sortBy = document.getElementById('sortBy').value;
+                let sorted = [...this.overdueBooks];
+
+                switch(sortBy) {
+                    case 'days':
+                        sorted.sort((a, b) => 
+                            this.calculateDaysOverdue(b.dueDate) - this.calculateDaysOverdue(a.dueDate)
+                        );
+                        break;
+                    case 'fine':
+                        sorted.sort((a, b) => 
+                            this.calculateFine(this.calculateDaysOverdue(b.dueDate)) - 
+                            this.calculateFine(this.calculateDaysOverdue(a.dueDate))
+                        );
+                        break;
+                    case 'name':
+                        sorted.sort((a, b) => a.memberName.localeCompare(b.memberName));
+                        break;
+                }
+
+                this.renderOverdueBooks(sorted);
+            }
+
+            sendReminder(id) {
+                const book = this.overdueBooks.find(b => b.id === id);
+                if (book) {
+                    book.remindersSent++;
+                    this.updateStats();
+                    this.generateReminderEmail(book);
+                    alert(`Reminder sent to ${book.memberName} (${book.memberEmail})`);
+                }
+            }
+
+            sendBulkReminders() {
+                if (confirm('Send reminders to all overdue books?')) {
+                    this.overdueBooks.forEach(book => {
+                        book.remindersSent++;
+                        this.generateReminderEmail(book);
+                    });
+                    this.updateStats();
+                    alert('Bulk reminders sent successfully!');
+                }
+            }
+
+            generateReminderEmail(book) {
+                const daysOverdue = this.calculateDaysOverdue(book.dueDate);
+                const fine = this.calculateFine(daysOverdue);
+                const template = `
+                    Dear ${book.memberName},
+
+                    This is a reminder that the book "${book.bookTitle}" is overdue by ${daysOverdue} days.
+                    The current fine amount is $${fine.toFixed(2)}.
+
+                    Please return the book as soon as possible to avoid additional fines.
+
+                    Due Date: ${new Date(book.dueDate).toLocaleDateString()}
+                    Current Fine: $${fine.toFixed(2)}
+
+                    If you have already returned the book, please disregard this message.
+
+                    Best regards,
+                    Library Management System
+                `;
+
+                // In a real application, this would connect to an email service
+                console.log('Reminder email:', template);
+            }
+
+            viewDetails(id) {
+                const book = this.overdueBooks.find(b => b.id === id);
+                if (book) {
+                    const daysOverdue = this.calculateDaysOverdue(book.dueDate);
+                    const fine = this.calculateFine(daysOverdue);
+                    
+                    alert(`
+                        Overdue Details:
+                        
+                        Member Information:
+                        Name: ${book.memberName}
+                        ID: ${book.memberId}
+                        Email: ${book.memberEmail}
+                        Phone: ${book.memberPhone}
+
+                        Book Information:
+                        Title: ${book.bookTitle}
+                        ID: ${book.bookId}
+                        Due Date: ${new Date(book.dueDate).toLocaleDateString()}
+                        Days Overdue: ${daysOverdue}
+                        Current Fine: $${fine.toFixed(2)}
+
+                        Reminder History:
+                        Reminders Sent: ${book.remindersSent}
+                        Last Reminder: ${new Date().toLocaleDateString()}
+                    `);
+                }
+            }
+
+            exportOverdueList() {
+                const data = this.overdueBooks.map(book => {
+                    const daysOverdue = this.calculateDaysOverdue(book.dueDate);
+                    const fine = this.calculateFine(daysOverdue);
+                    return {
+                        'Member Name': book.memberName,
+                        'Member ID': book.memberId,
+                        'Book Title': book.bookTitle,
+                        'Due Date': new Date(book.dueDate).toLocaleDateString(),
+                        'Days Overdue': daysOverdue,
+                        'Fine Amount': `$${fine.toFixed(2)}`,
+                        'Reminders Sent': book.remindersSent
+                    };
+                });
+
+                // Convert to CSV
+                const headers = Object.keys(data[0]);
+                const csv = [
+                    headers.join(','),
+                    ...data.map(row => headers.map(header => row[header]).join(','))
+                ].join('\n');
+
+                // Create download link
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `overdue_books_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+            }
+        }
+
+        // Initialize the overdue manager
+        const overdueManager = new OverdueManager();
+    </script>
+</body>
+</html>

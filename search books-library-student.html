@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Books - Library Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --text-dark: #202124;
+            --text-light: #5f6368;
+            --bg-light: #f8f9fa;
+            --border-color: #dadce0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            min-height: 100vh;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            position: fixed;
+        }
+
+        .logo {
+            font-size: 24px;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-bottom: 40px;
+            display: block;
+        }
+
+        .features-title {
+            color: #666;
+            font-size: 14px;
+            margin: 20px 0 10px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #e8f0fe;
+            color: var(--primary-color);
+        }
+
+        .nav-item i {
+            width: 24px;
+            margin-right: 12px;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+
+        .search-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .search-header {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input input {
+            width: 100%;
+            padding: 15px 20px;
+            padding-left: 45px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-input i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .filter-btn {
+            padding: 0 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filters-panel {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .filters-panel.active {
+            display: grid;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .book-cover {
+            height: 200px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-info {
+            padding: 20px;
+        }
+
+        .book-title {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .book-author {
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .availability {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .available {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .unavailable {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .book-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .book-details {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .book-description {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .book-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 1200px) {
+            .filters-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .search-header {
+                flex-direction: column;
+            }
+            .filters-panel {
+                grid-template-columns: 1fr;
+            }
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar code remains the same as previous examples -->
+    <div class="sidebar">
+        <a href="dashboard.html" class="logo">
+            <i class="fas fa-book-reader"></i> Library Portal
+        </a>
+        <h3 class="features-title">FEATURES</h3>
+        <nav>
+            <a href="index-library-student.html" class="nav-item active">
+                <i class="fas fa-home"></i> Library Dashboard
+            </a>
+            <a href="view my details-library-student.html" class="nav-item">
+                <i class="fas fa-user"></i> View My Details
+            </a>
+            <a href="search books-library-student.html" class="nav-item">
+                <i class="fas fa-search"></i> Search Books
+            </a>
+            <a href="my books-library-student.html" class="nav-item">
+                <i class="fas fa-book"></i> My Books
+            </a>
+            <a href="payment details-library-student.html" class="nav-item">
+                <i class="fas fa-money-bill"></i> Payment Details
+            </a>
+            <a href="index-student.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Student Dashboard</a>
+        </nav>
+    </div>
+    <div class="main-content">
+        <div class="search-container">
+            <div class="search-header">
+                <div class="search-input">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search by title, author, or ISBN..." id="searchInput">
+                </div>
+                <button class="filter-btn" id="filterToggle">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                </button>
+            </div>
+
+            <div class="filters-panel" id="filtersPanel">
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="non-fiction">Non-Fiction</option>
+                        <option value="science">Science</option>
+                        <option value="technology">Technology</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Availability</label>
+                    <select id="availabilityFilter">
+                        <option value="">All</option>
+                        <option value="available">Available</option>
+                        <option value="unavailable">Unavailable</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Publication Year</label>
+                    <select id="yearFilter">
+                        <option value="">All Years</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Sort By</label>
+                    <select id="sortFilter">
+                        <option value="relevance">Relevance</option>
+                        <option value="title">Title</option>
+                        <option value="author">Author</option>
+                        <option value="year">Publication Year</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="books-grid" id="booksGrid"></div>
+    </div>
+
+    <div class="book-details-modal" id="bookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Book Details</h2>
+                <button class="modal-close" onclick="bookManager.closeModal()">&times;</button>
+            </div>
+            <div class="book-details" id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        class BookManager {
+            constructor() {
+                this.books = [
+                    {
+                        id: 1,
+                        title: "Data Structures and Algorithms",
+                        author: "John Smith",
+                        cover: "https://via.placeholder.com/300x200",
+                        category: "technology",
+                        year: 2023,
+                        available: true,
+                        isbn: "978-1234567890",
+                        description: "A comprehensive guide to data structures and algorithms...",
+                        copies: 5,
+                        totalBorrows: 125
+                    },
+                    {
+            id: 2,
+            title: "The Art of Clean Code",
+            author: "Sarah Johnson",
+            cover: "https://via.placeholder.com/300x200",
+            category: "technology",
+            year: 2024,
+            available: true,
+            isbn: "978-0987654321",
+            description: "Learn how to write maintainable, readable, and efficient code following best practices and industry standards.",
+            copies: 3,
+            totalBorrows: 89
+        },
+        {
+            id: 3,
+            title: "Machine Learning Fundamentals",
+            author: "David Chen",
+            cover: "https://via.placeholder.com/300x200",
+            category: "science",
+            year: 2023,
+            available: false,
+            isbn: "978-5678901234",
+            description: "An introduction to machine learning concepts, algorithms, and practical applications in data science.",
+            copies: 4,
+            totalBorrows: 156
+        },
+                ];
+
+                this.initializeEventListeners();
+                this.renderBooks();
+            }
+
+            initializeEventListeners() {
+                document.getElementById('filterToggle').addEventListener('click', () => {
+                    document.getElementById('filtersPanel').classList.toggle('active');
+                });
+
+                document.getElementById('searchInput').addEventListener('input', () => {
+                    this.filterBooks();
+                });
+
+                ['categoryFilter', 'availabilityFilter', 'yearFilter', 'sortFilter'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', () => {
+                        this.filterBooks();
+                    });
+                });
+            }
+
+            filterBooks() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const category = document.getElementById('categoryFilter').value;
+                const availability = document.getElementById('availabilityFilter').value;
+                const year = document.getElementById('yearFilter').value;
+                const sortBy = document.getElementById('sortFilter').value;
+
+                let filteredBooks = this.books.filter(book => {
+                    const matchesSearch = book.title.toLowerCase().includes(searchTerm) ||
+                                        book.author.toLowerCase().includes(searchTerm) ||
+                                        book.isbn.includes(searchTerm);
+                    const matchesCategory = !category || book.category === category;
+                    const matchesAvailability = !availability || 
+                        (availability === 'available' ? book.available : !book.available);
+                    const matchesYear = !year || book.year.toString() === year;
+
+                    return matchesSearch && matchesCategory && matchesAvailability && matchesYear;
+                });
+
+                // Sort books
+                filteredBooks.sort((a, b) => {
+                    switch(sortBy) {
+                        case 'title':
+                            return a.title.localeCompare(b.title);
+                        case 'author':
+                            return a.author.localeCompare(b.author);
+                        case 'year':
+                            return b.year - a.year;
+                        default:
+                            return 0;
+                    }
+                });
+
+                this.renderBooks(filteredBooks);
+            }
+
+            renderBooks(books = this.books) {
+                const grid = document.getElementById('booksGrid');
+                grid.innerHTML = books.map(book => `
+                    <div class="book-card">
+                        <div class="book-cover">
+                            <img src="${book.cover}" alt="${book.title}">
+                        </div>
+                        <div class="book-info">
+                            <h3 class="book-title">${book.title}</h3>
+                            <p class="book-author">by ${book.author}</p>
+                            <div class="book-meta">
+                                <span>${book.year}</span>
+                                <span class="availability ${book.available ? 'available' : 'unavailable'}">
+                                    ${book.available ? 'Available' : 'Unavailable'}
+                                </span>
+                            </div>
+                            <div class="book-actions">
+                                <button class="btn btn-primary" onclick="bookManager.showDetails(${book.id})">
+                                    <i class="fas fa-info-circle"></i>
+                                    Details
+                                </button>
+                                ${book.available ? `
+                                    <button class="btn btn-outline" onclick="bookManager.borrowBook(${book.id})">
+                                        <i class="fas fa-book"></i>
+                                        Borrow
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            showDetails(bookId) {
+                const book = this.books.find(b => b.id === bookId);
+                const modal =                 document.getElementById('modalContent').innerHTML = `
+                    <div class="modal-book-cover">
+                        <img src="${book.cover}" alt="${book.title}" style="width: 100%; border-radius: 8px;">
+                    </div>
+                    <div class="modal-book-info">
+                        <h2>${book.title}</h2>
+                        <p class="book-author">by ${book.author}</p>
+                        <p class="book-description">${book.description}</p>
+                        
+                        <div class="book-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${book.copies}</div>
+                                <div class="stat-label">Available Copies</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${book.totalBorrows}</div>
+                                <div class="stat-label">Total Borrows</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <h4 style="margin-bottom: 10px;">Book Details</h4>
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td style="padding: 8px 0; color: var(--text-light);">ISBN</td>
+                                    <td>${book.isbn}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: var(--text-light);">Category</td>
+                                    <td style="text-transform: capitalize;">${book.category}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: var(--text-light);">Publication Year</td>
+                                    <td>${book.year}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px 0; color: var(--text-light);">Status</td>
+                                    <td>
+                                        <span class="availability ${book.available ? 'available' : 'unavailable'}">
+                                            ${book.available ? 'Available' : 'Unavailable'}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        ${book.available ? `
+                            <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" 
+                                    onclick="bookManager.borrowBook(${book.id})">
+                                <i class="fas fa-book"></i>
+                                Borrow Book
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                modal.style.display = 'flex';
+            }
+
+            closeModal() {
+                document.getElementById('bookModal').style.display = 'none';
+            }
+
+            borrowBook(bookId) {
+                const book = this.books.find(b => b.id === bookId);
+                if (!book.available) {
+                    this.showAlert('This book is currently unavailable', 'error');
+                    return;
+                }
+
+                // In a real application, this would make an API call to borrow the book
+                book.available = false;
+                this.showAlert('Book borrowed successfully!', 'success');
+                this.renderBooks();
+                this.closeModal();
+            }
+
+            showAlert(message, type) {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = message;
+                document.body.appendChild(alert);
+
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            }
+        }
+
+        // Initialize book manager
+        const bookManager = new BookManager();
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            const modal = document.getElementById('bookModal');
+            if (event.target === modal) {
+                bookManager.closeModal();
+            }
+        };
+    </script>
+</body>
+</html>
