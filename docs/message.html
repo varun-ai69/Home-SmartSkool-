@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+          /* Sidebar */
+          .sidebar {
+              width: 280px;
+              background-color: #1e1e2f;
+              /* Dark blue-gray */
+              height: 100vh;
+              position: fixed;
+              left: 0;
+              top: 0;
+              display: flex;
+              flex-direction: column;
+              box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+              transition: transform 0.3s ease;
+              z-index: 1000;
+          }
+
+          .sidebar.collapsed {
+              transform: translateX(-280px);
+              /* Hide sidebar */
+          }
+
+          .sidebar h2 {
+              text-align: center;
+              padding: 20px;
+              font-size: 24px;
+              color: #fff;
+              font-weight: 600;
+              background-color: #1e1e2f;
+              /* Same as sidebar */
+              position: sticky;
+              top: 0;
+              z-index: 1;
+
+          }
+
+          .sidebar ul {
+              list-style: none;
+              overflow-y: auto;
+              /* Enable scrolling */
+              flex-grow: 1;
+              /* Take remaining space */
+              padding: 0 20px 20px 20px;
+              /* Add padding at the bottom */
+              scrollbar-width: thin;
+              /* For Firefox */
+              scrollbar-color: #1abc9c #1e1e2f;
+              /* For Firefox */
+          }
+
+          .sidebar ul::-webkit-scrollbar {
+              width: 8px;
+              /* Width of the scrollbar */
+          }
+
+          .sidebar ul::-webkit-scrollbar-track {
+              background: #1e1e2f;
+              /* Track color */
+              border-radius: 10px;
+          }
+
+          .sidebar ul::-webkit-scrollbar-thumb {
+              background: #1abc9c;
+              /* Thumb color */
+              border-radius: 10px;
+          }
+
+          .sidebar ul::-webkit-scrollbar-thumb:hover {
+              background: #16a085;
+              /* Thumb color on hover */
+          }
+
+          .sidebar ul li {
+              margin: 15px 0;
+          }
+
+          .sidebar ul li a {
+              color: #a0a0a0;
+              /* Light gray */
+              text-decoration: none;
+              font-size: 16px;
+              display: flex;
+              align-items: center;
+              padding: 12px 15px;
+              border-radius: 8px;
+              transition: all 0.3s ease;
+          }
+
+          .sidebar ul li a:hover {
+              background-color: #2a2a3f;
+              /* Slightly lighter blue-gray */
+              color: #fff;
+              transform: translateX(10px);
+          }
+
+          .sidebar ul li a.active {
+              background-color: #1abc9c;
+              color: #fff;
+          }
+
+          .sidebar ul li a i {
+              margin-right: 10px;
+              font-size: 18px;
+          }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 14px 20px;
+            gap: 12px;
+            /* background-color: #1b1b29; Dark, premium feel matching sidebar */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            /* Subtle depth */
+        }
+
+        .admin-header img {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #888888;
+            /* Subtle gray border for elegance */
+        }
+
+        .admin-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d1d1d1;
+            /* Soft, modern gray */
+            margin: 0;
+        }
+
+        .topbar {
+            width: 100%;
+
+            background-color: #252540;
+            /* Dark navy for a sleek, modern look */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Smooth shadow effect */
+
+
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 500;
+        }
+
+        /* Menu Icon */
+        .menu-icon {
+            font-size: 24px;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.3s ease, margin-left 0.3s ease;
+            position: relative;
+            margin-left: 270px;
+            /* Initially aligned with sidebar */
+        }
+
+        .sidebar.collapsed+.topbar .menu-icon {
+            margin-left: 20px;
+            /* Move left when sidebar is collapsed */
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Profile Section */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .admin-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .admin-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .profile-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu Styles */
+        .dropdown-menu {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            top: 60px;
+            /* Adjust based on topbar height */
+            right: 20px;
+            background-color: #2a2a3f;
+            /* Dark blue-gray */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 250px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #a0a0a0;
+            /* Light gray */
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #1e1e2f;
+            /* Slightly darker blue-gray */
+            color: #fff;
+        }
+
+        .dropdown-menu .dropdown-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-menu .dropdown-item span {
+            font-size: 14px;
+        }
+
+        /* Show Dropdown on Click */
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            margin-top: 70px;
+            /* Adjust based on topbar height */
+            transition: margin-left 0.3s ease;
+        }
+
+
+
+        .main-content.expanded {
+            margin-left: 0;
+            /* Adjust when sidebar is collapsed */
+        }
+
+        /* Mailbox Section */
+.mailbox-section {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Cool Heading */
+.cool-heading {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1e1e2f;
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.cool-heading::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background-color: #1abc9c;
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+/* Mailbox Options (Left Side) */
+.mailbox-options {
+  width: 200px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.mailbox-options .option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.mailbox-options .option:hover {
+  background-color: #f1f1f1;
+  transform: translateX(5px);
+}
+
+.mailbox-options .option.active {
+  background-color: #1abc9c;
+  color: #fff;
+}
+
+.mailbox-options .option i {
+  font-size: 18px;
+}
+
+.mailbox-options .option span {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Compose Section (Right Side) */
+.compose-section, .inbox-section {
+  flex: 1;
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.compose-section h3, .inbox-section h3 {
+  margin-bottom: 20px;
+  color: #1e1e2f;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Form Group Styling */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.form-group select, .form-group input, .form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group select:focus, .form-group input:focus, .form-group textarea:focus {
+  border-color: #1abc9c;
+  outline: none;
+  box-shadow: 0 0 8px rgba(26, 188, 156, 0.3);
+}
+
+/* Button Styling */
+button {
+  background: linear-gradient(90deg, #1abc9c, #16a085);
+  color: #fff;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.3s ease;
+  width: 100%;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #16a085, #1abc9c);
+  transform: translateY(-2px);
+}
+
+/* Inbox Section (Right Side) */
+#inboxMessages {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message-card {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.message-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.message-card h4 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #1e1e2f;
+}
+
+.message-card p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.message-card .message-date {
+  font-size: 12px;
+  color: #888;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mailbox-section {
+    flex-direction: column;
+  }
+
+  .mailbox-options {
+    width: 100%;
+  }
+}
+@media (max-width: 768px) {
+  .stat-card {
+    flex: 1 1 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-card {
+    flex: 1 1 100%;
+  }
+}
+
+/* Charts Section */
+.charts {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+/* Chart Card Styling */
+.chart-card {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  flex: 1 1 30%;
+  min-width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.chart-card h3 {
+  font-size: 18px;
+  color: #1e1e2f;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Canvas Styling */
+.chart-card canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 300px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .chart-card {
+    flex: 1 1 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-card {
+    flex: 1 1 100%;
+  }
+}
+
+/* Mobile View - Only icons visible in sidebar */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px; /* Make sidebar narrow */
+  }
+
+  .sidebar ul li a {
+    justify-content: center; /* Center icons */
+  }
+
+  .sidebar ul li a i {
+    margin-right: 0; /* Remove space between icon and text */
+    font-size: 20px; /* Adjust icon size if needed */
+  }
+
+  .sidebar ul li a span, 
+  .sidebar h2, 
+  .admin-header h2 {
+    display: none; /* Hide text and headings */
+  }
+
+  .menu-icon {
+    margin-left: 80px; /* Adjust menu icon for small sidebar */
+  }
+
+  .main-content {
+    margin-left: 80px; /* Adjust main content margin */
+  }
+}
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="admin-header">
+            <img src="man_7122861.png" alt="Admin Profile">
+            <h2>Admin Panel</h2>
+        </div>
+        <!-- <hr class="divider"> -->
+        <!-- Thin Line -->
+        <ul>
+          <li><a href="dashboard.html" ><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+          <li><a href="student.html"><i class="fas fa-users"></i> <span>Students</span></a></li>
+          <li><a href="teacher.html"><i class="fas fa-chalkboard-teacher"></i> <span>Teachers</span></a></li>
+                <li><a href="classroom.html"><i class="fas fa-school"></i> <span>Classroom</span></a></li>
+                <!-- <li><a href="#"><i class="fas fa-book"></i> Exam Section</a></li> -->
+                <li><a href="examroutine.html"><i class="fas fa-calendar-alt"></i><span> Exam Routine</span></a></li>
+                <li><a href="result.html"><i class="fas fa-poll"></i> <span>Results</span></a></li>
+                <li><a href="educaution.html"><i class="fas fa-graduation-cap"></i> <span>Education</span></a></li>
+                <li><a href="hostel.html"><i class="fas fa-building"></i>
+                  <span>Hostel Management</span></a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="noticeboard.html"><i class="fas fa-bell"></i> <span>Notice Board</span></a></li>
+                <li><a href="#"><i class="fas fa-chart-line"></i><span> Analytics</span></a></li>
+                <li><a href="message.html" class="active"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
+                <li><a href="index-event-admin.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                  <span> Events Manager</span></a></li>
+                <li><a href="#"><i class="fas fa-user-shield"></i><span> Admin Tools</span></a></li>
+                <li><a href="#"><i class="fas fa-question-circle"></i> <span>Help</span></a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <div class="topbar">
+        <div class="menu-icon" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="profile" onclick="toggleDropdown()">
+            <div class="profile-info">
+                <span class="admin-name">Varun</span>
+                <span class="admin-role">Super Admin</span>
+            </div>
+            <img src="man_7122861.png" alt="Profile Photo" class="profile-photo">
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item">
+                    <i class="fas fa-user"></i>
+                    <span>Username: Varun</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email: kushwahavarun86@gmail.com</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-key"></i>
+                    <span>Change Password</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Privacy</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="main-content">
+        <!-- Mailbox Section -->
+        <div class="mailbox-section">
+          <!-- Heading -->
+          <!-- <h2 class="cool-heading">Mailbox</h2> -->
+      
+          <!-- Left Side: Compose and Inbox Options -->
+          <div class="mailbox-options">
+            <div class="option compose-option active" onclick="showComposeSection()">
+              <i class="fas fa-pen"></i>
+              <span>Compose</span>
+            </div>
+            <div class="option inbox-option" onclick="showInboxSection()">
+              <i class="fas fa-inbox"></i>
+              <span>Inbox</span>
+            </div>
+          </div>
+      
+          <!-- Right Side: Compose Section -->
+          <div class="compose-section">
+            <h3>Compose Mail</h3>
+            <form id="composeMailForm">
+              <div class="form-group">
+                <label for="recipient">To:</label>
+                <select id="recipient" name="recipient" required>
+                  <option value="">Select Recipient</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="student">Student</option>
+                  <option value="receptionist">Receptionist</option>
+                  <option value="parents">Parents</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" required>
+              </div>
+              <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="8" required></textarea>
+              </div>
+              <button type="submit">Send</button>
+            </form>
+          </div>
+      
+          <!-- Right Side: Inbox Section -->
+          <div class="inbox-section">
+            <h3>Inbox</h3>
+            <div id="inboxMessages">
+              <!-- Inbox messages will be dynamically added here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+            sidebar.classList.toggle("collapsed");
+            mainContent.classList.toggle("expanded");
+        }
+
+        // Toggle Dropdown
+        function toggleDropdown() {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            dropdownMenu.classList.toggle("active");
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            const profile = document.querySelector(".profile");
+            if (!profile.contains(event.target)) {
+                dropdownMenu.classList.remove("active");
+            }
+        });
+
+     // Function to show Compose Section
+function showComposeSection() {
+  document.querySelector('.compose-section').style.display = 'block';
+  document.querySelector('.inbox-section').style.display = 'none';
+  document.querySelector('.compose-option').classList.add('active');
+  document.querySelector('.inbox-option').classList.remove('active');
+}
+
+// Function to show Inbox Section
+function showInboxSection() {
+  document.querySelector('.compose-section').style.display = 'none';
+  document.querySelector('.inbox-section').style.display = 'block';
+  document.querySelector('.compose-option').classList.remove('active');
+  document.querySelector('.inbox-option').classList.add('active');
+}
+
+// Sample Inbox Messages
+const inboxMessages = [
+  {
+    subject: 'Exam Schedule Update',
+    sender: 'Admin',
+    message: 'The exam schedule has been updated. Please check the new dates.',
+    date: '2023-10-01',
+  },
+  {
+    subject: 'Fee Payment Reminder',
+    sender: 'Accounts Department',
+    message: 'This is a reminder to pay the pending fees for this semester.',
+    date: '2023-09-28',
+  },
+  {
+    subject: 'Parent-Teacher Meeting',
+    sender: 'Principal',
+    message: 'A parent-teacher meeting is scheduled for next week. Please confirm your availability.',
+    date: '2023-09-25',
+  },
+];
+
+// Function to display Inbox Messages
+function displayInboxMessages() {
+  const inboxMessagesContainer = document.getElementById('inboxMessages');
+  inboxMessagesContainer.innerHTML = '';
+
+  inboxMessages.forEach((message) => {
+    const messageCard = document.createElement('div');
+    messageCard.classList.add('message-card');
+    messageCard.innerHTML = `
+      <h4>${message.subject}</h4>
+      <p><strong>From:</strong> ${message.sender}</p>
+      <p>${message.message}</p>
+      <p class="message-date">${message.date}</p>
+    `;
+    inboxMessagesContainer.appendChild(messageCard);
+  });
+}
+
+// Initial Setup
+showComposeSection(); // Show Compose Section by default
+displayInboxMessages(); // Display sample inbox messages
+</script>
+
+</body>
+
+</html>

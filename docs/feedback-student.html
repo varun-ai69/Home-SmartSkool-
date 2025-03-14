@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .feedback-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+        }
+
+        .star {
+            font-size: 24px;
+            cursor: pointer;
+            color: #d1d5db;
+            transition: color 0.3s;
+        }
+
+        .star.active {
+            color: #FBBF24;
+        }
+
+        .feedback-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: grid;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .form-input,
+        .form-textarea {
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .feedback-history {
+            margin-top: 40px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-select {
+            padding: 8px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .feedback-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .feedback-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .feedback-meta {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .feedback-content {
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-light);
+            background: transparent;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-light);
+            color: var(--primary-color);
+        }
+
+        .emoji-picker {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .emoji-option {
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .emoji-option.active {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-tag {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-light);
+        }
+
+        .category-tag.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .satisfaction-meter {
+            height: 8px;
+            background: var(--bg-light);
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .satisfaction-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0;
+            transition: width 1s ease-in-out;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .feedback-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your existing sidebar here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1 style="margin-bottom: 30px;">Feedback</h1>
+
+        <div class="feedback-grid">
+            <div class="feedback-card">
+                <div class="card-header">
+                    <div class="card-title">Course Feedback</div>
+                    <div class="rating-stars" id="courseRating">
+                        <i class="fas fa-star star" data-rating="1"></i>
+                        <i class="fas fa-star star" data-rating="2"></i>
+                        <i class="fas fa-star star" data-rating="3"></i>
+                        <i class="fas fa-star star" data-rating="4"></i>
+                        <i class="fas fa-star star" data-rating="5"></i>
+                    </div>
+                </div>
+
+                <div class="emoji-picker" id="emojiPicker">
+                    <span class="emoji-option" data-mood="excellent">😄</span>
+                    <span class="emoji-option" data-mood="good">🙂</span>
+                    <span class="emoji-option" data-mood="neutral">😐</span>
+                    <span class="emoji-option" data-mood="poor">😕</span>
+                    <span class="emoji-option" data-mood="bad">😞</span>
+                </div>
+
+                <div class="category-tags" id="categoryTags">
+                    <span class="category-tag" data-category="content">Course Content</span>
+                    <span class="category-tag" data-category="instructor">Instructor</span>
+                    <span class="category-tag" data-category="materials">Materials</span>
+                    <span class="category-tag" data-category="assignments">Assignments</span>
+                </div>
+
+                <form class="feedback-form" id="feedbackForm">
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-input" id="feedbackTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Your Feedback</label>
+                        <textarea class="form-textarea" id="feedbackContent" required></textarea>
+                    </div>
+                    <div class="satisfaction-meter">
+                        <div class="satisfaction-fill" id="satisfactionFill"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </form>
+            </div>
+
+            <div class="feedback-card">
+                <div class="card-header">
+                    <div class="card-title">Feedback Statistics</div>
+                </div>
+                <canvas id="feedbackChart"></canvas>
+            </div>
+        </div>
+
+        <div class="feedback-history">
+            <div class="history-header">
+                <h2>Previous Feedback</h2>
+                <select class="filter-select" onchange="feedbackManager.filterFeedback(this.value)">
+                    <option value="all">All Categories</option>
+                    <option value="content">Course Content</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="materials">Materials</option>
+                    <option value="assignments">Assignments</option>
+                </select>
+            </div>
+            <div class="feedback-list" id="feedbackList"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        class FeedbackManager {
+            constructor() {
+                this.feedbacks = [
+                    {
+                        id: 1,
+                        title: 'Great Course Content',
+                        content: 'The course material was very well structured and easy to follow.',
+                        rating: 5,
+                        mood: 'excellent',
+                        category: 'content',
+                        date: new Date('2024-03-01'),
+                        satisfaction: 90
+                    },
+                    {
+                        id: 2,
+                        title: 'Assignment Difficulty',
+                        content: 'Some assignments were too challenging and needed more explanation.',
+                        rating: 3,
+                        mood: 'neutral',
+                        category: 'assignments',
+                        date: new Date('2024-02-28'),
+                        satisfaction: 60
+                    }
+                ];
+
+                this.currentRating = 0;
+                this.currentMood = '';
+                this.selectedCategories = new Set();
+                this.satisfactionLevel = 0;
+
+                this.initializeEventListeners();
+                this.renderFeedbacks();
+                this.renderChart();
+            }
+
+            initializeEventListeners() {
+                // Star rating
+                document.getElementById('courseRating').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('star')) {
+                        const rating = parseInt(e.target.dataset.rating);
+                        this.setRating(rating);
+                    }
+                });
+
+                // Emoji mood
+                document.getElementById('emojiPicker').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('emoji-option')) {
+                        const mood = e.target.dataset.mood;
+                        this.setMood(mood);
+                    }
+                });
+
+                // Category tags
+                document.getElementById('categoryTags').addEventListener('click', (e) => {
+                    if (e.target.classList.contains('category-tag')) {
+                        const category = e.target.dataset.category;
+                        this.toggleCategory(category);
+                    }
+                });
+
+                // Feedback form
+                document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitFeedback();
+                });
+
+                // Satisfaction meter
+                document.getElementById('feedbackContent').addEventListener('input', (e) => {
+                    this.updateSatisfactionMeter(e.target.value);
+                });
+            }
+
+            setRating(rating) {
+                this.currentRating = rating;
+                const stars = document.querySelectorAll('.star');
+                stars.forEach((star, index) => {
+                    star.classList.toggle('active', index < rating);
+                });
+            }
+
+            setMood(mood) {
+                this.currentMood = mood;
+                const emojis = document.querySelectorAll('.emoji-option');
+                emojis.forEach(emoji => {
+                    emoji.classList.toggle('active', emoji.dataset.mood === mood);
+                });
+            }
+
+            toggleCategory(category) {
+                const tag = document.querySelector(`[data-category="${category}"]`);
+                if (this.selectedCategories.has(category)) {
+                    this.selectedCategories.delete(category);
+                    tag.classList.remove('active');
+                } else {
+                    this.selectedCategories.add(category);
+                    tag.classList.add('active');
+                }
+            }
+
+            updateSatisfactionMeter(text) {
+                const words = text.trim().split(/\s+/).length;
+                const satisfaction = Math.min(100, (words / 50) * 100);
+                document.getElementById('satisfactionFill').style.width = `${satisfaction}%`;
+                this.satisfactionLevel = satisfaction;
+            }
+
+            submitFeedback() {
+                const title = document.getElementById('feedbackTitle').value;
+                const content = document.getElementById('feedbackContent').value;
+
+                if (!this.currentRating || !this.currentMood || this.selectedCategories.size === 0) {
+                    alert('Please complete all feedback sections');
+                    return;
+                }
+
+                const feedback = {
+                    id: this.feedbacks.length + 1,
+                    title,
+                    content,
+                    rating: this.currentRating,
+                    mood: this.currentMood,
+                    category: Array.from(this.selectedCategories)[0],
+                    date: new Date(),
+                    satisfaction: this.satisfactionLevel
+                };
+
+                this.feedbacks.unshift(feedback);
+                this.renderFeedbacks();
+                this.renderChart();
+                this.resetForm();
+                this.showSuccessMessage();
+            }
+
+            resetForm() {
+                document.getElementById('feedbackForm').reset();
+                this.setRating(0);
+                this.setMood('');
+                this.selectedCategories.clear();
+                document.querySelectorAll('.category-tag').forEach(tag => {
+                    tag.classList.remove('active');
+                });
+                document.getElementById('satisfactionFill').style.width = '0%';
+            }
+
+            showSuccessMessage() {
+                const message = document.createElement('div');
+                message.style.position = 'fixed';
+                message.style.top = '20px';
+                message.style.right = '20px';
+                message.style.padding = '15px 25px';
+                message.style.background = '#D1FAE5';
+                message.style.color = '#10B981';
+                message.style.borderRadius = '8px';
+                message.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                message.style.zIndex = '1000';
+                message.innerHTML = '<i class="fas fa-check-circle"></i> Feedback submitted successfully!';
+                
+                document.body.appendChild(message);
+                setTimeout(() => message.remove(), 3000);
+            }
+
+            renderFeedbacks() {
+                const feedbackList = document.getElementById('feedbackList');
+                feedbackList.innerHTML = this.feedbacks.map(feedback => `
+                    <div class="feedback-item">
+                        <div class="feedback-header">
+                            <h3>${feedback.title}</h3>
+                            <div class="feedback-meta">
+                                ${new Date(feedback.date).toLocaleDateString()}
+                                <div class="rating-stars">
+                                    ${Array(5).fill().map((_, i) => 
+                                        `<i class="fas fa-star ${i < feedback.rating ? 'active' : ''}"></i>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feedback-content">${feedback.content}</div>
+                        <div class="category-tag active">${feedback.category}</div>
+                        <div class="satisfaction-meter">
+                            <div class="satisfaction-fill" style="width: ${feedback.satisfaction}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            renderChart() {
+                const ctx = document.getElementById('feedbackChart').getContext('2d');
+                const categoryData = this.getCategoryStatistics();
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(categoryData),
+                        datasets: [{
+                            label: 'Average Rating',
+                            data: Object.values(categoryData),
+                            backgroundColor: '#3B82F6',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Feedback by Category'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 5,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            getCategoryStatistics() {
+                const stats = {};
+                this.feedbacks.forEach(feedback => {
+                    if (!stats[feedback.category]) {
+                        stats[feedback.category] = {
+                            total: 0,
+                            count: 0
+                        };
+                    }
+                    stats[feedback.category].total += feedback.rating;
+                    stats[feedback.category].count++;
+                });
+
+                return Object.fromEntries(
+                    Object.entries(stats).map(([category, data]) => [
+                        category,
+                        data.total / data.count
+                    ])
+                );
+            }
+
+            filterFeedback(category) {
+                const filteredFeedbacks = category === 'all' 
+                    ? this.feedbacks 
+                    : this.feedbacks.filter(f => f.category === category);
+                
+                const feedbackList = document.getElementById('feedbackList');
+                feedbackList.innerHTML = filteredFeedbacks.map(feedback => `
+                    <div class="feedback-item">
+                        <div class="feedback-header">
+                            <h3>${feedback.title}</h3>
+                            <div class="feedback-meta">
+                                ${new Date(feedback.date).toLocaleDateString()}
+                                <div class="rating-stars">
+                                    ${Array(5).fill().map((_, i) => 
+                                        `<i class="fas fa-star ${i < feedback.rating ? 'active' : ''}"></i>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="feedback-content">${feedback.content}</div>
+                        <div class="category-tag active">${feedback.category}</div>
+                        <div class="satisfaction-meter">
+                            <div class="satisfaction-fill" style="width: ${feedback.satisfaction}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Initialize feedback manager
+        const feedbackManager = new FeedbackManager();
+    </script>
+</body>
+</html>

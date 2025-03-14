@@ -1,0 +1,72 @@
+{
+    "events": [
+        {
+            "id": 1,
+            "title": "Annual Sports Meet 2024",
+            "category": "sports",
+            "date": "2024-03-15",
+            "time": "09:00",
+            "description": "Join us for our annual sports competition featuring basketball, football, and athletics events.",
+            "location": "School Ground",
+            "participants": [
+                {
+                    "userId": "user1",
+                    "registeredAt": "2024-02-10T08:30:00"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "title": "Science Exhibition",
+            "category": "academic",
+            "date": "2024-03-20",
+            "time": "10:00",
+            "description": "Student projects showcasing innovative scientific concepts and experiments.",
+            "location": "School Auditorium",
+            "participants": []
+        },
+        {
+            "id": 3,
+            "title": "Cultural Dance Festival",
+            "category": "cultural",
+            "date": "2024-04-05",
+            "time": "14:00",
+            "description": "Annual cultural dance performance featuring traditional and modern dance forms.",
+            "location": "Main Hall",
+            "participants": []
+        },
+        {
+            "id": 4,
+            "title": "Career Guidance Workshop",
+            "category": "workshop",
+            "date": "2024-03-25",
+            "time": "11:00",
+            "description": "Expert counselors will guide students about various career opportunities.",
+            "location": "Conference Room",
+            "participants": []
+        }
+    ],
+    "announcements": [
+        {
+            "id": 1,
+            "title": "Exam Schedule Update",
+            "priority": "urgent",
+            "date": "2024-02-28",
+            "message": "Final examination dates have been revised. Please check the updated schedule."
+        },
+        {
+            "id": 2,
+            "title": "Library Notice",
+            "priority": "general",
+            "date": "2024-02-25",
+            "message": "The library will remain open during weekends for exam preparation."
+        },
+        {
+            "id": 3,
+            "title": "Parent-Teacher Meeting",
+            "priority": "urgent",
+            "date": "2024-03-01",
+            "message": "PTM scheduled for all classes. Attendance is mandatory."
+        }
+    ]
+}

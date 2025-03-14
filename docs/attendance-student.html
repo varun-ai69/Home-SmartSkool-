@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --shadow-color: rgba(59, 130, 246, 0.3);
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Keep your existing sidebar CSS here */
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .attendance-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-title {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .attendance-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            padding: 15px 20px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .attendance-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            width: fit-content;
+        }
+
+        .badge-present {
+            background: #D1FAE5;
+            color: var(--success-color);
+        }
+
+        .badge-absent {
+            background: #FEE2E2;
+            color: var(--danger-color);
+        }
+
+        .badge-late {
+            background: #FEF3C7;
+            color: var(--warning-color);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .filter-select {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+            .table-header, .table-row {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your existing sidebar here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1 style="margin-bottom: 30px;">Attendance Overview</h1>
+
+        <div class="attendance-header">
+            <div class="stat-card">
+                <div class="stat-title">Overall Attendance</div>
+                <div class="stat-value">85.5%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Present Days</div>
+                <div class="stat-value">45/52</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Absent Days</div>
+                <div class="stat-value">7</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Late Arrivals</div>
+                <div class="stat-value">3</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <select class="filter-select" id="courseFilter">
+                <option value="all">All Courses</option>
+                <option value="web">Web Development</option>
+                <option value="data">Data Structures</option>
+                <option value="db">Database Systems</option>
+            </select>
+            <select class="filter-select" id="monthFilter">
+                <option value="all">All Months</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+            </select>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-card">
+                <h3 class="chart-title">Monthly Attendance Overview</h3>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Course-wise Attendance</h3>
+                <canvas id="courseChart"></canvas>
+            </div>
+        </div>
+
+        <div class="attendance-table">
+            <div class="table-header">
+                <div>Course</div>
+                <div>Date</div>
+                <div>Time</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
+            <div id="attendanceRecords"></div>
+        </div>
+    </div>
+
+    <script>
+        class AttendanceManager {
+            constructor() {
+                this.attendanceData = {
+                    monthly: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        data: [92, 88, 85, 90, 87, 83]
+                    },
+                    courses: {
+                        labels: ['Web Dev', 'Data Structures', 'Database', 'OS'],
+                        data: [88, 92, 85, 90]
+                    },
+                    records: [
+                        {
+                            course: 'Web Development',
+                            date: '2024-03-01',
+                            time: '09:00 AM',
+                            status: 'present'
+                        },
+                        {
+                            course: 'Data Structures',
+                            date: '2024-03-01',
+                            time: '11:00 AM',
+                            status: 'late'
+                        },
+                        {
+                            course: 'Database Systems',
+                            date: '2024-03-02',
+                            time: '10:00 AM',
+                            status: 'absent'
+                        }
+                        // Add more records as needed
+                    ]
+                };
+
+                this.initializeCharts();
+                this.renderAttendanceRecords();
+                this.initializeEventListeners();
+            }
+
+            initializeCharts() {
+                // Monthly Attendance Chart
+                const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+                new Chart(monthlyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: this.attendanceData.monthly.labels,
+                        datasets: [{
+                            label: 'Attendance %',
+                            data: this.attendanceData.monthly.data,
+                            borderColor: '#2563eb',
+                            tension: 0.4,
+                            fill: true,
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+
+                // Course-wise Attendance Chart
+                const courseCtx = document.getElementById('courseChart').getContext('2d');
+                new Chart(courseCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: this.attendanceData.courses.labels,
+                        datasets: [{
+                            label: 'Attendance %',
+                            data: this.attendanceData.courses.data,
+                            backgroundColor: '#3B82F6',
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderAttendanceRecords() {
+                const recordsContainer = document.getElementById('attendanceRecords');
+                recordsContainer.innerHTML = this.attendanceData.records.map(record => `
+                    <div class="table-row">
+                        <div>${record.course}</div>
+                        <div>${new Date(record.date).toLocaleDateString()}</div>
+                        <div>${record.time}</div>
+                        <div>
+                            <span class="attendance-badge badge-${record.status}">
+                                ${record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                            </span>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline" onclick="attendanceManager.viewDetails('${record.date}', '${record.course}')">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            initializeEventListeners() {
+                document.getElementById('courseFilter').addEventListener('change', () => {
+                    this.filterRecords();
+                });
+
+                document.getElementById('monthFilter').addEventListener('change', () => {
+                    this.filterRecords();
+                });
+            }
+
+            filterRecords() {
+                const courseFilter = document.getElementById('courseFilter').value;
+                const monthFilter = document.getElementById('monthFilter').value;
+
+                const filteredRecords = this.attendanceData.records.filter(record => {
+                    const matchesCourse = courseFilter === 'all' || record.course.toLowerCase().includes(courseFilter);
+                    const recordMonth = new Date(record.date).getMonth() + 1;
+                    const matchesMonth = monthFilter === 'all' || recordMonth === parseInt(monthFilter);
+                    return matchesCourse && matchesMonth;
+                });
+
+                const recordsContainer = document.getElementById('attendanceRecords');
+                recordsContainer.innerHTML = filteredRecords.map(record => `
+                    <div class="table-row">
+                        <div>${record.course}</div>
+                        <div>${new Date(record.date).toLocaleDateString()}</div>
+                        <div>${record.time}</div>
+                        <div>
+                            <span class="attendance-badge badge-${record.status}">
+                                ${record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                            </span>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline" onclick="attendanceManager.viewDetails('${record.date}', '${record.course}')">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            viewDetails(date, course) {
+                alert(`Viewing details for ${course} on ${date}`);
+                // Implement detailed view functionality
+            }
+        }
+
+        // Initialize attendance manager
+        const attendanceManager = new AttendanceManager();
+    </script>
+</body>
+</html>

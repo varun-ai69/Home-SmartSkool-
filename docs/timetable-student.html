@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --shadow-color: rgba(59, 130, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .timetable-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .timetable-grid {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .timetable {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .timetable th {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .timetable td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .class-card {
+            background: var(--bg-light);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .class-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .class-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .class-info {
+            font-size: 13px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .calendar-view {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-light);
+        }
+
+        .calendar-day.has-class {
+            border-color: var(--primary-color);
+        }
+
+        .day-number {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .timetable-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your existing sidebar here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+    
+         <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="timetable-header">
+            <h1>Class Timetable</h1>
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="timetableManager.switchView('grid')">Grid View</button>
+                <button class="view-btn" onclick="timetableManager.switchView('calendar')">Calendar View</button>
+            </div>
+        </div>
+
+        <div class="timetable-grid" id="gridView">
+            <table class="timetable">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                    </tr>
+                </thead>
+                <tbody id="timetableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="calendar-view" id="calendarView">
+            <div class="calendar-header">
+                <h2 id="currentMonth">March 2024</h2>
+                <div>
+                    <button class="btn" onclick="timetableManager.previousMonth()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn" onclick="timetableManager.nextMonth()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="classModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        class TimetableManager {
+            constructor() {
+                this.classes = [
+                    {
+                        id: 1,
+                        subject: "Web Development",
+                        time: "09:00 AM - 10:30 AM",
+                        day: "Monday",
+                        room: "Lab 101",
+                        instructor: "Dr. Smith",
+                        type: "Practical"
+                    },
+                    {
+                        id: 2,
+                        subject: "Data Structures",
+                        time: "11:00 AM - 12:30 PM",
+                        day: "Monday",
+                        room: "Room 202",
+                        instructor: "Prof. Johnson",
+                        type: "Theory"
+                    },
+                    {
+                        id: 3,
+                        subject: "Database Systems",
+                        time: "09:00 AM - 10:30 AM",
+                        day: "Tuesday",
+                        room: "Lab 103",
+                        instructor: "Dr. Williams",
+                        type: "Practical"
+                    }
+                    // Add more classes as needed
+                ];
+
+                this.currentView = 'grid';
+                this.currentDate = new Date();
+                
+                this.initializeEventListeners();
+                this.renderTimetable();
+            }
+
+            initializeEventListeners() {
+                document.querySelector('.modal-close').addEventListener('click', () => {
+                    document.getElementById('classModal').style.display = 'none';
+                });
+
+                window.addEventListener('click', (event) => {
+                    const modal = document.getElementById('classModal');
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            switchView(view) {
+                this.currentView = view;
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.textContent.toLowerCase().includes(view));
+                });
+
+                document.getElementById('gridView').style.display = view === 'grid' ? 'block' : 'none';
+                document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
+
+                if (view === 'calendar') {
+                    this.renderCalendar();
+                }
+            }
+
+            renderTimetable() {
+                const timeSlots = [
+                    "09:00 AM - 10:30 AM",
+                    "11:00 AM - 12:30 PM",
+                    "02:00 PM - 03:30 PM",
+                    "04:00 PM - 05:30 PM"
+                ];
+
+                const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+                const tbody = document.getElementById('timetableBody');
+                tbody.innerHTML = '';
+
+                timeSlots.forEach(timeSlot => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${timeSlot}</td>`;
+
+                    days.forEach(day => {
+                        const classForSlot = this.classes.find(c => 
+                            c.day === day && c.time === timeSlot
+                        );
+
+                        if (classForSlot) {
+                            row.innerHTML += `
+                                <td>
+                                    <div class="class-card" onclick="timetableManager.showClassDetails(${classForSlot.id})">
+                                        <div class="class-title">${classForSlot.subject}</div>
+                                        <div class="class-info">
+                                            <i class="fas fa-map-marker-alt"></i> ${classForSlot.room}
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                        } else {
+                            row.innerHTML += '<td></td>';
+                        }
+                    });
+
+                    tbody.appendChild(row);
+                });
+            }
+
+            showClassDetails(classId) {
+                const classInfo = this.classes.find(c => c.id === classId);
+                if (classInfo) {
+                    const modalContent = `
+                        <h2>${classInfo.subject}</h2>
+                        <div style="margin: 20px 0;">
+                            <p><strong>Time:</strong> ${classInfo.time}</p>
+                            <p><strong>Room:</strong> ${classInfo.room}</p>
+                            <p><strong>Instructor:</strong> ${classInfo.instructor}</p>
+                            <p><strong>Type:</strong> ${classInfo.type}</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="timetableManager.setReminder(${classId})">
+                            Set Reminder
+                        </button>
+                    `;
+                    document.getElementById('modalContent').innerHTML = modalContent;
+                    document.getElementById('classModal').style.display = 'flex';
+                }
+            }
+
+            setReminder(classId) {
+                const classInfo = this.classes.find(c => c.id === classId);
+                if (classInfo && 'Notification' in window) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            // Schedule notification 15 minutes before class
+                            setTimeout(() => {
+                                new Notification(`Class Reminder: ${classInfo.subject}`, {
+                                    body: `Your class starts in 15 minutes in ${classInfo.room}`,
+                                    icon: '/path/to/icon.png'
+                                });
+                            }, this.getTimeUntilClass(classInfo) - 15 * 60 * 1000);
+                            
+                            alert('Reminder set! You will be notified 15 minutes before class.');
+                        }
+                    });
+                }
+            }
+
+            getTimeUntilClass(classInfo) {
+                // Implementation for calculating time until next class
+                return 900000; // 15 minutes in milliseconds (example)
+            }
+
+            renderCalendar() {
+                const month = this.currentDate.getMonth();
+                const year = this.currentDate.getFullYear();
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                
+                document.getElementById('currentMonth').textContent = 
+                    this.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                const calendarGrid = document.getElementById('calendarGrid');
+                calendarGrid.innerHTML = '';
+
+                // Add empty cells for days before the first day of the month
+                for (let i = 0; i < firstDay.getDay(); i++) {
+                    calendarGrid.appendChild(this.createCalendarDay());
+                }
+
+                // Add days of the month
+                for (let day = 1; day <= lastDay.getDate(); day++) {
+                    const dayElement = this.createCalendarDay(day);
+                    if (this.hasClasses(year, month, day)) {
+                        dayElement.classList.add('has-class');
+                    }
+                    calendarGrid.appendChild(dayElement);
+                }
+            }
+
+            createCalendarDay(day = '') {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.innerHTML = day ? `<div class="day-number">${day}</div>` : '';
+                return dayElement;
+            }
+
+            hasClasses(year, month, day) {
+                // Implementation for checking if there are classes on a specific date
+                return Math.random() > 0.7; // Example implementation
+            }
+
+            previousMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                this.renderCalendar();
+            }
+
+            nextMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                this.renderCalendar();
+            }
+
+            exportTimetable() {
+                const data = this.classes.map(c => ({
+                    Subject: c.subject,
+                    Day: c.day,
+                    Time: c.time,
+                    Room: c.room,
+                    Instructor: c.instructor,
+                    Type: c.type
+                }));
+
+                const csvContent = "data:text/csv;charset=utf-8,"
+                    + Object.keys(data[0]).join(",") + "\n"
+                    + data.map(row => Object.values(row).join(",")).join("\n");
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "timetable.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            addToCalendar(classId) {
+                const classInfo = this.classes.find(c => c.id === classId);
+                if (classInfo) {
+                    const startTime = this.parseTime(classInfo.time.split(' - ')[0]);
+                    const endTime = this.parseTime(classInfo.time.split(' - ')[1]);
+
+                    const event = {
+                        title: classInfo.subject,
+                        location: classInfo.room,
+                        description: `Instructor: ${classInfo.instructor}\nType: ${classInfo.type}`,
+                        start: startTime,
+                        end: endTime
+                    };
+
+                    // Example implementation for adding to calendar
+                    if ('calendar' in window) {
+                        window.calendar.createEvent(event)
+                            .then(() => alert('Added to calendar successfully!'))
+                            .catch(error => alert('Failed to add to calendar: ' + error));
+                    } else {
+                        alert('Calendar integration not available');
+                    }
+                }
+            }
+
+            parseTime(timeStr) {
+                const [time, meridiem] = timeStr.split(' ');
+                let [hours, minutes] = time.split(':');
+                hours = parseInt(hours);
+                
+                if (meridiem === 'PM' && hours !== 12) {
+                    hours += 12;
+                }
+                if (meridiem === 'AM' && hours === 12) {
+                    hours = 0;
+                }
+
+                const today = new Date();
+                return new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, parseInt(minutes));
+            }
+
+            searchClasses(query) {
+                const searchResults = this.classes.filter(c => 
+                    c.subject.toLowerCase().includes(query.toLowerCase()) ||
+                    c.instructor.toLowerCase().includes(query.toLowerCase()) ||
+                    c.room.toLowerCase().includes(query.toLowerCase())
+                );
+
+                return searchResults;
+            }
+
+            getUpcomingClasses() {
+                const now = new Date();
+                const today = now.toLocaleDateString('en-US', { weekday: 'long' });
+                const currentTime = now.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: 'numeric', 
+                    hour12: true 
+                });
+
+                return this.classes.filter(c => {
+                    if (c.day === today) {
+                        const classTime = c.time.split(' - ')[0];
+                        return this.compareTime(classTime, currentTime) > 0;
+                    }
+                    return false;
+                }).sort((a, b) => {
+                    const timeA = a.time.split(' - ')[0];
+                    const timeB = b.time.split(' - ')[0];
+                    return this.compareTime(timeA, timeB);
+                });
+            }
+
+            compareTime(time1, time2) {
+                return this.parseTime(time1) - this.parseTime(time2);
+            }
+
+            showNotification(message) {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        }
+
+        // Initialize timetable manager
+        const timetableManager = new TimetableManager();
+
+        // Check for upcoming classes every minute
+        setInterval(() => {
+            const upcoming = timetableManager.getUpcomingClasses();
+            if (upcoming.length > 0) {
+                const nextClass = upcoming[0];
+                timetableManager.showNotification(
+                    `Next class: ${nextClass.subject} at ${nextClass.time} in ${nextClass.room}`
+                );
+            }
+        }, 60000);
+    </script>
+</body>
+</html>

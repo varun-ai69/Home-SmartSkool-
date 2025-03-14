@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examinations - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --shadow-color: rgba(59, 130, 246, 0.3);
+            --success-color: #10B981;
+            --warning-color: #F59E0B;
+            --danger-color: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Keep your existing sidebar CSS here */
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .exams-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .exam-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .exam-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .exam-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .exam-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .exam-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .exam-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .exam-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .status-upcoming {
+            background: #FEF3C7;
+            color: var(--warning-color);
+        }
+
+        .status-completed {
+            background: #D1FAE5;
+            color: var(--success-color);
+        }
+
+        .status-ongoing {
+            background: #DBEAFE;
+            color: var(--primary-color);
+        }
+
+        .exam-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .exam-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .exam-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .countdown-timer {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--bg-light);
+            border-radius: 10px;
+        }
+
+        .timer-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .exam-tabs {
+                overflow-x: auto;
+                padding-bottom: 15px;
+            }
+            .exam-cards {
+                grid-template-columns: 1fr;
+            }
+            .exam-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your existing sidebar here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+    
+        <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="exams-header">
+            <h1>Examinations</h1>
+            <button class="btn btn-primary" onclick="examManager.showCalendar()">
+                <i class="fas fa-calendar"></i> Exam Calendar
+            </button>
+        </div>
+
+        <div class="exam-tabs">
+            <div class="exam-tab active" data-tab="upcoming">Upcoming Exams</div>
+            <div class="exam-tab" data-tab="ongoing">Ongoing Exams</div>
+            <div class="exam-tab" data-tab="completed">Completed Exams</div>
+        </div>
+
+        <div class="exam-cards" id="examCards"></div>
+    </div>
+
+    <div class="modal" id="examModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        class ExamManager {
+            constructor() {
+                this.exams = [
+                    {
+                        id: 1,
+                        title: "Data Structures Mid-Term",
+                        course: "Data Structures & Algorithms",
+                        date: "2024-03-15",
+                        time: "09:00 AM",
+                        duration: "3 hours",
+                        status: "upcoming",
+                        venue: "Hall A-101",
+                        maxMarks: 100,
+                        type: "Written",
+                        syllabus: ["Arrays", "Linked Lists", "Trees", "Graphs"]
+                    },
+                    {
+                        id: 2,
+                        title: "Web Development Project Defense",
+                        course: "Advanced Web Development",
+                        date: "2024-03-10",
+                        time: "02:00 PM",
+                        duration: "30 minutes",
+                        status: "upcoming",
+                        venue: "Online",
+                        maxMarks: 50,
+                        type: "Practical",
+                        requirements: "Project presentation and code review"
+                    },
+                    {
+                        id: 3,
+                        title: "Database Management Quiz",
+                        course: "Database Systems",
+                        date: "2024-03-08",
+                        time: "11:00 AM",
+                        duration: "1 hour",
+                        status: "completed",
+                        venue: "Online",
+                        maxMarks: 30,
+                        score: 27,
+                        type: "MCQ"
+                    },
+                    {
+                        id: 4,
+                        title: "Operating Systems Lab Exam",
+                        course: "Operating Systems",
+                        date: "2024-03-12",
+                        time: "10:00 AM",
+                        duration: "2 hours",
+                        status: "ongoing",
+                        venue: "Lab B-205",
+                        maxMarks: 50,
+                        type: "Practical",
+                        timeRemaining: 7200
+                    }
+                ];
+
+                this.currentTab = 'upcoming';
+                this.initializeEventListeners();
+                this.renderExams();
+            }
+
+            initializeEventListeners() {
+                document.querySelectorAll('.exam-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        this.switchTab(tab.dataset.tab);
+                    });
+                });
+
+                document.querySelector('.modal-close').addEventListener('click', () => {
+                    document.getElementById('examModal').style.display = 'none';
+                });
+            }
+
+            switchTab(tabName) {
+                this.currentTab = tabName;
+                document.querySelectorAll('.exam-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.tab === tabName);
+                });
+                this.renderExams();
+            }
+
+            renderExams() {
+                const filteredExams = this.exams.filter(exam => exam.status === this.currentTab);
+                document.getElementById('examCards').innerHTML = filteredExams.map(exam => `
+                    <div class="exam-card">
+                        <span class="exam-status status-${exam.status}">
+                            ${exam.status.charAt(0).toUpperCase() + exam.status.slice(1)}
+                        </span>
+                        <h3 class="exam-title">${exam.title}</h3>
+                        <div class="exam-info">
+                            <div class="info-item">
+                                <i class="fas fa-book"></i>
+                                <span>${exam.course}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>${exam.date}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <span>${exam.time}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-hourglass-half"></i>
+                                <span>${exam.duration}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-location-dot"></i>
+                                <span>${exam.venue}</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-star"></i>
+                                <span>${exam.maxMarks} Marks</span>
+                            </div>
+                        </div>
+                        ${exam.status === 'ongoing' ? `
+                            <div class="countdown-timer">
+                                <div class="timer-value" id="timer-${exam.id}">
+                                    ${this.formatTime(exam.timeRemaining)}
+                                </div>
+                                <div>Time Remaining</div>
+                            </div>
+                        ` : ''}
+                        <div class="exam-actions">
+                            <button class="btn btn-outline" onclick="examManager.viewDetails(${exam.id})">
+                                <i class="fas fa-info-circle"></i> Details
+                            </button>
+                            ${this.getActionButton(exam)}
+                        </div>
+                    </div>
+                `).join('');
+
+                // Start timers for ongoing exams
+                filteredExams.forEach(exam => {
+                    if (exam.status === 'ongoing') {
+                        this.startTimer(exam.id);
+                    }
+                });
+            }
+
+            getActionButton(exam) {
+                switch(exam.status) {
+                    case 'upcoming':
+                        return `
+                            <button class="btn btn-primary" onclick="examManager.showReminder(${exam.id})">
+                                <i class="fas fa-bell"></i> Set Reminder
+                            </button>
+                        `;
+                    case 'ongoing':
+                        return `
+                            <button class="btn btn-primary" onclick="examManager.startExam(${exam.id})">
+                                <i class="fas fa-play"></i> Start Exam
+                            </button>
+                        `;
+                    case 'completed':
+                        return `
+                            <button class="btn btn-primary" onclick="examManager.viewResult(${exam.id})">
+                                <i class="fas fa-chart-bar"></i> View Result
+                            </button>
+                        `;
+                    default:
+                        return '';
+                }
+            }
+
+            formatTime(seconds) {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            startTimer(examId) {
+                const exam = this.exams.find(e => e.id === examId);
+                if (exam && exam.timeRemaining > 0) {
+                    const timerElement = document.getElementById(`timer-${examId}`);
+                    if (timerElement) {
+                        const timer = setInterval(() => {
+                            exam.timeRemaining--;
+                            timerElement.textContent = this.formatTime(exam.timeRemaining);
+                            if (exam.timeRemaining <= 0) {
+                                clearInterval(timer);
+                                exam.status = 'completed';
+                                this.renderExams();
+                            }
+                        }, 1000);
+                    }
+                }
+            }
+
+            viewDetails(examId) {
+                const exam = this.exams.find(e => e.id === examId);
+                if (exam) {
+                    document.getElementById('modalContent').innerHTML = `
+                        <h2>${exam.title}</h2>
+                        <div style="margin: 20px 0;">
+                                                        <p><strong>Course:</strong> ${exam.course}</p>
+                            <p><strong>Date:</strong> ${exam.date}</p>
+                            <p><strong>Time:</strong> ${exam.time}</p>
+                            <p><strong>Duration:</strong> ${exam.duration}</p>
+                            <p><strong>Venue:</strong> ${exam.venue}</p>
+                            <p><strong>Maximum Marks:</strong> ${exam.maxMarks}</p>
+                            <p><strong>Type:</strong> ${exam.type}</p>
+                            ${exam.syllabus ? `
+                                <p><strong>Syllabus:</strong></p>
+                                <ul style="margin-left: 20px">
+                                    ${exam.syllabus.map(topic => `<li>${topic}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                            ${exam.requirements ? `
+                                <p><strong>Requirements:</strong> ${exam.requirements}</p>
+                            ` : ''}
+                            ${exam.score ? `
+                                <div style="margin-top: 20px; padding: 15px; background: #D1FAE5; border-radius: 10px; text-align: center;">
+                                    <h3 style="color: #10B981">Score: ${exam.score}/${exam.maxMarks}</h3>
+                                    <p style="margin-top: 5px">Percentage: ${(exam.score/exam.maxMarks*100).toFixed(1)}%</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    document.getElementById('examModal').style.display = 'flex';
+                }
+            }
+
+            showReminder(examId) {
+                const exam = this.exams.find(e => e.id === examId);
+                if (exam) {
+                    // Check if browser supports notifications
+                    if ('Notification' in window) {
+                        Notification.requestPermission().then(permission => {
+                            if (permission === 'granted') {
+                                const examDate = new Date(exam.date + ' ' + exam.time);
+                                const now = new Date();
+                                const timeUntilExam = examDate - now;
+
+                                if (timeUntilExam > 0) {
+                                    setTimeout(() => {
+                                        new Notification('Exam Reminder', {
+                                            body: `Your ${exam.title} exam starts in 30 minutes!`,
+                                            icon: '/path/to/icon.png'
+                                        });
+                                    }, timeUntilExam - 30*60*1000);
+
+                                    alert('Reminder set! You will be notified 30 minutes before the exam.');
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            startExam(examId) {
+                const exam = this.exams.find(e => e.id === examId);
+                if (exam) {
+                    if (exam.venue === 'Online') {
+                        window.location.href = `/exam-portal/${examId}`;
+                    } else {
+                        alert(`Please proceed to ${exam.venue} for your examination.`);
+                    }
+                }
+            }
+
+            viewResult(examId) {
+                const exam = this.exams.find(e => e.id === examId);
+                if (exam && exam.score) {
+                    document.getElementById('modalContent').innerHTML = `
+                        <h2>Exam Results</h2>
+                        <div style="margin: 20px 0; text-align: center;">
+                            <div style="font-size: 48px; color: var(--primary-color); margin-bottom: 10px;">
+                                ${exam.score}/${exam.maxMarks}
+                            </div>
+                            <div style="font-size: 24px; color: var(--text-dark);">
+                                ${(exam.score/exam.maxMarks*100).toFixed(1)}%
+                            </div>
+                            <div style="margin-top: 30px;">
+                                <h3>Performance Analysis</h3>
+                                <div style="margin-top: 20px;">
+                                    <!-- Add detailed performance analysis here -->
+                                    <p>Detailed analysis coming soon!</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('examModal').style.display = 'flex';
+                }
+            }
+
+            showCalendar() {
+                alert('Exam calendar feature coming soon!');
+            }
+        }
+
+        // Initialize exam manager
+        const examManager = new ExamManager();
+
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            const modal = document.getElementById('examModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

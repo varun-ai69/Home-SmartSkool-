@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile - Student Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3B82F6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --border-color: #e0e7ff;
+            --shadow-color: rgba(59, 130, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: var(--bg-light);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+      width: 270px;
+      min-width: 270px;
+      background: #ffffff;
+      color: #2563eb;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #e0e7ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+      min-width: 70px;
+    }
+
+    .sidebar-header {
+      padding: 0 30px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header i {
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .menu {
+      list-style: none;
+      padding: 0 20px;
+    }
+
+    .menu li {
+      margin: 12px 0;
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      color: #2563eb;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .menu a i {
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .menu a:hover {
+      background: #3B82F6;
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu a:hover i {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .feature-heading {
+      padding: 0 30px;
+      color: #6b7280;
+      font-size: 15px;
+      text-transform: uppercase;
+      margin: 30px 0 12px;
+    }
+
+    /* Sidebar Collapse */
+    .sidebar.collapsed .menu a span,
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .feature-heading {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu a {
+      justify-content: center;
+    }
+
+    .main-content {
+    padding: 30px;
+    width: 100%;
+}
+
+        .profile-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .profile-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-upload {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .profile-image:hover .image-upload {
+            opacity: 1;
+        }
+
+        .profile-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .profile-role {
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .profile-main {
+            display: grid;
+            gap: 30px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include your existing sidebar here -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="heading">Student Portal</h2>
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <ul class="menu">
+            <li>
+                <a href="index-student.html" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Student Dashboard</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Academics</h3>
+        <ul class="menu">
+            <li>
+                <a href="my courses-student.html">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                </a>
+            </li>
+            <li>
+                <a href="assignment-student.html">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            <li>
+                <a href="examinationspage-student.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Examinations</span>
+                </a>
+            </li>
+            <li>
+                <a href="attendance-student.html">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Attendance</span>
+                </a>
+            </li>
+            <li>
+                <a href="index-library-student.html">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Library Portal</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Personal</h3>
+        <ul class="menu">
+            <li>
+                <a href="my profile-student.html">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="timetable-student.html">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Table</span>
+                </a>
+            </li>
+            <li>
+                <a href="documents-student.html">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </a>
+            </li>
+            <li><a href="studenthosteldashboard.html"><i class="fas fa-building"></i>
+                <span>Hostel Management</span></a></li>
+        </ul>
+    
+        <h3 class="feature-heading">Finance</h3>
+        <ul class="menu">
+            <li>
+                <a href="feepayment-student.html">
+                    <i class="fas fa-money-bill"></i>
+                    <span>Fee Payment</span>
+                </a>
+            </li>
+            <li>
+                <a href="transactionhistory-student.html">
+                    <i class="fas fa-history"></i>
+                    <span>Transaction History</span>
+                </a>
+            </li>
+        </ul>
+    
+        <h3 class="feature-heading">Communication</h3>
+        <ul class="menu">
+            <li>
+                <a href="messages-student.html">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </li>
+            <li>
+                <a href="notifications-student.html">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+            <li><a href="eventmanager-student.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                <span> Events Manager</span></a></li>
+            <li>
+            <li>
+                <a href="feedback-student.html">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <div class="profile-image">
+                    <img src="https://via.placeholder.com/200" alt="Profile Picture" id="profilePic">
+                    <div class="image-upload" onclick="profileManager.uploadImage()">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <div class="profile-name">John Doe</div>
+                    <div class="profile-role">Computer Science Student</div>
+                    <button class="btn btn-outline" onclick="profileManager.editProfile()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">85%</div>
+                        <div class="stat-label">Attendance</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">8.5</div>
+                        <div class="stat-label">CGPA</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-main">
+                <div class="section-card">
+                    <div class="section-title">
+                        Personal Information
+                        <button class="btn btn-outline" onclick="profileManager.editPersonalInfo()">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Student ID</div>
+                            <div class="info-value">CS2024001</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">john.doe@university.edu</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">+1 234 567 8900</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Date of Birth</div>
+                            <div class="info-value">15 March 2000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title">
+                        Academic Information
+                        <button class="btn btn-outline" onclick="profileManager.editAcademicInfo()">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Department</div>
+                            <div class="info-value">Computer Science</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Semester</div>
+                            <div class="info-value">4th</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Batch</div>
+                            <div class="info-value">2022-2026</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Academic Status</div>
+                            <div class="info-value">Regular</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title">Skills & Achievements</div>
+                    <div id="skillsList">
+                        <!-- Skills will be dynamically added here -->
+                    </div>
+                    <button class="btn btn-primary" onclick="profileManager.addSkill()" style="margin-top: 15px;">
+                        <i class="fas fa-plus"></i> Add Skill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        class ProfileManager {
+            constructor() {
+                this.skills = [
+                    { name: 'Web Development', level: 'Advanced' },
+                    { name: 'Python Programming', level: 'Intermediate' },
+                    { name: 'Database Management', level: 'Intermediate' }
+                ];
+
+                this.initializeEventListeners();
+                this.renderSkills();
+            }
+
+            initializeEventListeners() {
+                document.querySelector('.modal-close').addEventListener('click', () => {
+                    document.getElementById('editModal').style.display = 'none';
+                });
+
+                window.addEventListener('click', (event) => {
+                    const modal = document.getElementById('editModal');
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            uploadImage() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            document.getElementById('profilePic').src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+            }
+
+            editProfile() {
+                const modalContent = `
+                    <h2>Edit Profile</h2>
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-input" value="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <input type="text" class="form-input" value="Computer Science Student">
+                    </div>
+                    <button class="btn btn-primary" onclick="profileManager.saveProfile()">Save Changes</button>
+                `;
+                this.showModal(modalContent);
+            }
+
+            editPersonalInfo() {
+                const modalContent = `
+                    <h2>Edit Personal Information</h2>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" value="john.doe@university.edu">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-input" value="+1 234 567 8900">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-input" value="2000-03-15">
+                    </div>
+                    <button class="btn btn-primary" onclick="profileManager.savePersonalInfo()">Save Changes</button>
+                `;
+                this.showModal(modalContent);
+            }
+
+            editAcademicInfo() {
+                const modalContent = `
+                    <h2>Edit Academic Information</h2>
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <input type="text" class="form-input" value="Computer Science">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Semester</label>
+                        <input type="number" class="form-input" value="4">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Batch</label>
+                        <input type="text" class="form-input" value="2022-2026">
+                    </div>
+                    <button class="btn btn-primary" onclick="profileManager.saveAcademicInfo()">Save Changes</button>
+                `;
+                this.showModal(modalContent);
+            }
+
+addSkill() {
+    const modalContent = `
+        <h2>Add New Skill</h2>
+        <div class="form-group">
+            <label class="form-label">Skill Name</label>
+            <input type="text" class="form-input" id="skillName">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Proficiency Level</label>
+            <select class="form-input" id="skillLevel">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+                <option value="Expert">Expert</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="profileManager.saveSkill()">Add Skill</button>
+    `;
+    this.showModal(modalContent);
+}
+
+renderSkills() {
+    const skillsList = document.getElementById('skillsList');
+    skillsList.innerHTML = this.skills.map((skill, index) => `
+        <div style="display: flex; justify-content: space-between; align-items: center; 
+                   padding: 15px; background: var(--bg-light); border-radius: 8px; margin-bottom: 10px;">
+            <div>
+                <div style="font-weight: 500; color: var(--text-dark);">${skill.name}</div>
+                <div style="font-size: 14px; color: var(--text-light);">${skill.level}</div>
+            </div>
+            <button class="btn btn-outline" onclick="profileManager.removeSkill(${index})"
+                    style="padding: 5px 10px;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+removeSkill(index) {
+    if (confirm('Are you sure you want to remove this skill?')) {
+        this.skills.splice(index, 1);
+        this.renderSkills();
+    }
+}
+
+saveSkill() {
+    const name = document.getElementById('skillName').value;
+    const level = document.getElementById('skillLevel').value;
+    
+    if (name && level) {
+        this.skills.push({ name, level });
+        this.renderSkills();
+        document.getElementById('editModal').style.display = 'none';
+    } else {
+        alert('Please fill in all fields');
+    }
+}
+
+saveProfile() {
+    // Implement profile save functionality
+    alert('Profile updated successfully!');
+    document.getElementById('editModal').style.display = 'none';
+}
+
+savePersonalInfo() {
+    // Implement personal info save functionality
+    alert('Personal information updated successfully!');
+    document.getElementById('editModal').style.display = 'none';
+}
+
+saveAcademicInfo() {
+    // Implement academic info save functionality
+    alert('Academic information updated successfully!');
+    document.getElementById('editModal').style.display = 'none';
+}
+
+showModal(content) {
+    document.getElementById('modalContent').innerHTML = content;
+    document.getElementById('editModal').style.display = 'flex';
+}
+}
+
+// Initialize profile manager
+const profileManager = new ProfileManager();
+</script>
+</body>
+</html>

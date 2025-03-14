@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background-color: #1e1e2f;
+            /* Dark blue-gray */
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-280px);
+            /* Hide sidebar */
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            padding: 20px;
+            font-size: 24px;
+            color: #fff;
+            font-weight: 600;
+            background-color: #1e1e2f;
+            /* Same as sidebar */
+            position: sticky;
+            top: 0;
+            z-index: 1;
+
+        }
+
+        .sidebar ul {
+            list-style: none;
+            overflow-y: auto;
+            /* Enable scrolling */
+            flex-grow: 1;
+            /* Take remaining space */
+            padding: 0 20px 20px 20px;
+            /* Add padding at the bottom */
+            scrollbar-width: thin;
+            /* For Firefox */
+            scrollbar-color: #1abc9c #1e1e2f;
+            /* For Firefox */
+        }
+
+        .sidebar ul::-webkit-scrollbar {
+            width: 8px;
+            /* Width of the scrollbar */
+        }
+
+        .sidebar ul::-webkit-scrollbar-track {
+            background: #1e1e2f;
+            /* Track color */
+            border-radius: 10px;
+        }
+
+        .sidebar ul::-webkit-scrollbar-thumb {
+            background: #1abc9c;
+            /* Thumb color */
+            border-radius: 10px;
+        }
+
+        .sidebar ul::-webkit-scrollbar-thumb:hover {
+            background: #16a085;
+            /* Thumb color on hover */
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            color: #a0a0a0;
+            /* Light gray */
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #2a2a3f;
+            /* Slightly lighter blue-gray */
+            color: #fff;
+            transform: translateX(10px);
+        }
+
+        .sidebar ul li a.active {
+            background-color: #1abc9c;
+            color: #fff;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 14px 20px;
+            gap: 12px;
+            /* background-color: #1b1b29; Dark, premium feel matching sidebar */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            /* Subtle depth */
+        }
+
+        .admin-header img {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 2px solid #888888;
+            /* Subtle gray border for elegance */
+        }
+
+        .admin-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d1d1d1;
+            /* Soft, modern gray */
+            margin: 0;
+        }
+
+        .topbar {
+            width: 100%;
+
+            background-color: #252540;
+            /* Dark navy for a sleek, modern look */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Smooth shadow effect */
+
+
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 500;
+        }
+
+        /* Menu Icon */
+        .menu-icon {
+            font-size: 24px;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.3s ease, margin-left 0.3s ease;
+            position: relative;
+            margin-left: 270px;
+            /* Initially aligned with sidebar */
+        }
+
+        .sidebar.collapsed+.topbar .menu-icon {
+            margin-left: 20px;
+            /* Move left when sidebar is collapsed */
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Profile Section */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .admin-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .admin-role {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .profile-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            object-fit: cover;
+        }
+
+        /* Dropdown Menu Styles */
+        .dropdown-menu {
+            display: none;
+            /* Hidden by default */
+            position: absolute;
+            top: 60px;
+            /* Adjust based on topbar height */
+            right: 20px;
+            background-color: #2a2a3f;
+            /* Dark blue-gray */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 250px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #a0a0a0;
+            /* Light gray */
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #1e1e2f;
+            /* Slightly darker blue-gray */
+            color: #fff;
+        }
+
+        .dropdown-menu .dropdown-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-menu .dropdown-item span {
+            font-size: 14px;
+        }
+
+        /* Show Dropdown on Click */
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            margin-top: 70px;
+            /* Adjust based on topbar height */
+            transition: margin-left 0.3s ease;
+        }
+
+
+
+        .main-content.expanded {
+            margin-left: 0;
+            /* Adjust when sidebar is collapsed */
+        }
+
+
+        /* Exam Routine Section */
+/* Exam Routine Section */
+/* Exam Routine Section */
+.exam-routine-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Cool Heading */
+.cool-heading {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1e1e2f;
+  text-align: center;
+  margin-bottom: 20px;
+  z-index: 0;
+  position: relative;
+}
+
+.cool-heading::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background-color: #1abc9c;
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+/* Add Exam Routine Section */
+.add-exam-routine, .view-exam-routine {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.add-exam-routine h3, .view-exam-routine h3 {
+  margin-bottom: 20px;
+  color: #1e1e2f;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button {
+  background-color: #1abc9c;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #16a085;
+}
+
+/* View Exam Routine Table */
+#examRoutineTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#examRoutineTable th, #examRoutineTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+#examRoutineTable th {
+  background-color: #1e1e2f;
+  color: #fff;
+}
+
+#examRoutineTable tr:hover {
+  background-color: #f5f5f5;
+}
+
+#examRoutineTable button {
+  background-color: #e74c3c;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+#examRoutineTable button:hover {
+  background-color: #c0392b;
+}
+@media (max-width: 768px) {
+  .stat-card {
+    flex: 1 1 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-card {
+    flex: 1 1 100%;
+  }
+}
+
+/* Charts Section */
+.charts {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+/* Chart Card Styling */
+.chart-card {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  flex: 1 1 30%;
+  min-width: 300px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.chart-card h3 {
+  font-size: 18px;
+  color: #1e1e2f;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Canvas Styling */
+.chart-card canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 300px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .chart-card {
+    flex: 1 1 45%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-card {
+    flex: 1 1 100%;
+  }
+}
+
+/* Mobile View - Only icons visible in sidebar */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px; /* Make sidebar narrow */
+  }
+
+  .sidebar ul li a {
+    justify-content: center; /* Center icons */
+  }
+
+  .sidebar ul li a i {
+    margin-right: 0; /* Remove space between icon and text */
+    font-size: 20px; /* Adjust icon size if needed */
+  }
+
+  .sidebar ul li a span, 
+  .sidebar h2, 
+  .admin-header h2 {
+    display: none; /* Hide text and headings */
+  }
+
+  .menu-icon {
+    margin-left: 80px; /* Adjust menu icon for small sidebar */
+  }
+
+  .main-content {
+    margin-left: 80px; /* Adjust main content margin */
+  }
+}      
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="admin-header">
+            <img src="man_7122861.png" alt="Admin Profile">
+            <h2>Admin Panel</h2>
+        </div>
+        <!-- <hr class="divider"> -->
+        <!-- Thin Line -->
+        <ul>
+          <li><a href="dashboard.html" ><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a></li>
+          <li><a href="student.html"><i class="fas fa-users"></i> <span>Students</span></a></li>
+          <li><a href="teacher.html"><i class="fas fa-chalkboard-teacher"></i> <span>Teachers</span></a></li>
+                <li><a href="classroom.html"><i class="fas fa-school"></i> <span>Classroom</span></a></li>
+                <!-- <li><a href="#"><i class="fas fa-book"></i> Exam Section</a></li> -->
+                <li><a href="examroutine.html" class="active"><i class="fas fa-calendar-alt"></i><span> Exam Routine</span></a></li>
+                <li><a href="result.html"><i class="fas fa-poll"></i> <span>Results</span></a></li>
+                <li><a href="educaution.html"><i class="fas fa-graduation-cap"></i> <span>Education</span></a></li>
+                <li><a href="hostel.html"><i class="fas fa-building"></i>
+                  <span>Hostel Management</span></a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+                <li><a href="noticeboard.html"><i class="fas fa-bell"></i> <span>Notice Board</span></a></li>
+                <li><a href="#"><i class="fas fa-chart-line"></i><span> Analytics</span></a></li>
+                <li><a href="message.html"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
+                <li><a href="index-event-admin.html"><i class="fas fa-calendar-alt"></i>  <!-- Solid Calendar -->
+                  <span> Events Manager</span></a></li>
+                <li><a href="#"><i class="fas fa-user-shield"></i><span> Admin Tools</span></a></li>
+                <li><a href="#"><i class="fas fa-question-circle"></i> <span>Help</span></a></li>
+                <li><a href="#"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <div class="topbar">
+        <div class="menu-icon" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="profile" onclick="toggleDropdown()">
+            <div class="profile-info">
+                <span class="admin-name">Varun</span>
+                <span class="admin-role">Super Admin</span>
+            </div>
+            <img src="man_7122861.png" alt="Profile Photo" class="profile-photo">
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item">
+                    <i class="fas fa-user"></i>
+                    <span>Username: Varun</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email: kushwahavarun86@gmail.com</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-key"></i>
+                    <span>Change Password</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-lock"></i>
+                    <span>Privacy</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Exam Routine Section -->
+        
+          <!-- Cool Heading -->
+          <h2 class="cool-heading">Exam Routine</h2>
+      
+          <!-- Add Exam Routine Section -->
+          <div class="add-exam-routine">
+            <h3>Add Exam Routine</h3>
+            <form id="addExamRoutineForm">
+              <div class="form-group">
+                <label for="examType">Exam Type</label>
+                <select id="examType" name="examType" required>
+                  <option value="">Select Exam Type</option>
+                  <option value="periodic-test">Periodic Test</option>
+                  <option value="half-yearly">Half-Yearly</option>
+                  <option value="yearly">Yearly</option>
+                  <option value="re-exam">Re-Exam</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="examDate">Exam Date</label>
+                <input type="date" id="examDate" name="examDate" required>
+              </div>
+              <div class="form-group">
+                <label for="examTime">Exam Time</label>
+                <input type="time" id="examTime" name="examTime" required>
+              </div>
+              <div class="form-group">
+                <label for="examClass">Class</label>
+                <select id="examClass" name="examClass" required>
+                  <option value="">Select Class</option>
+                  <option value="1">Class 1</option>
+                  <option value="2">Class 2</option>
+                  <option value="3">Class 3</option>
+                  <option value="4">Class 4</option>
+                  <option value="5">Class 5</option>
+                  <option value="6">Class 6</option>
+                  <option value="7">Class 7</option>
+                  <option value="8">Class 8</option>
+                  <option value="9">Class 9</option>
+                  <option value="10">Class 10</option>
+                  <option value="11">Class 11</option>
+                  <option value="12">Class 12</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="examSubject">Subject</label>
+                <select id="examSubject" name="examSubject" required>
+                  <option value="">Select Subject</option>
+                  <option value="math">Mathematics</option>
+                  <option value="science">Science</option>
+                  <option value="english">English</option>
+                  <option value="history">History</option>
+                  <option value="computer">Computer Science</option>
+                </select>
+              </div>
+              <button type="submit">Add Exam</button>
+            </form>
+          </div>
+      
+          <!-- View Exam Routine Section -->
+          <div class="view-exam-routine">
+            <h3>View Exam Routine</h3>
+            <div class="filter-options">
+              <div class="form-group">
+                <label for="filterExamClass">Filter by Class</label>
+                <select id="filterExamClass" name="filterExamClass">
+                  <option value="">All Classes</option>
+                  <option value="1">Class 1</option>
+                  <option value="2">Class 2</option>
+                  <option value="3">Class 3</option>
+                  <option value="4">Class 4</option>
+                  <option value="5">Class 5</option>
+                  <option value="6">Class 6</option>
+                  <option value="7">Class 7</option>
+                  <option value="8">Class 8</option>
+                  <option value="9">Class 9</option>
+                  <option value="10">Class 10</option>
+                  <option value="11">Class 11</option>
+                  <option value="12">Class 12</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="filterExamSubject">Filter by Subject</label>
+                <select id="filterExamSubject" name="filterExamSubject">
+                  <option value="">All Subjects</option>
+                  <option value="math">Mathematics</option>
+                  <option value="science">Science</option>
+                  <option value="english">English</option>
+                  <option value="history">History</option>
+                  <option value="computer">Computer Science</option>
+                </select>
+              </div>
+            </div>
+            <table id="examRoutineTable">
+              <thead>
+                <tr>
+                  <th>Exam Type</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Class</th>
+                  <th>Subject</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Exam routine data will be dynamically added here -->
+              </tbody>
+            </table>
+          </div>
+        
+      </div>
+
+
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+            sidebar.classList.toggle("collapsed");
+            mainContent.classList.toggle("expanded");
+        }
+
+        // Toggle Dropdown
+        function toggleDropdown() {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            dropdownMenu.classList.toggle("active");
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (event) {
+            const dropdownMenu = document.getElementById("dropdownMenu");
+            const profile = document.querySelector(".profile");
+            if (!profile.contains(event.target)) {
+                dropdownMenu.classList.remove("active");
+            }
+        });
+        const addExamRoutineForm = document.getElementById('addExamRoutineForm');
+const examRoutineTable = document.getElementById('examRoutineTable').getElementsByTagName('tbody')[0];
+const filterExamClass = document.getElementById('filterExamClass');
+const filterExamSubject = document.getElementById('filterExamSubject');
+
+let examRoutineData = []; // Array to store exam routines
+
+// Function to add a new exam routine
+addExamRoutineForm.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // Get form data
+  const examType = document.getElementById('examType').value;
+  const examDate = document.getElementById('examDate').value;
+  const examTime = document.getElementById('examTime').value;
+  const examClass = document.getElementById('examClass').value;
+  const examSubject = document.getElementById('examSubject').value;
+
+  // Create an exam routine object
+  const examRoutine = {
+    examType,
+    examDate,
+    examTime,
+    examClass,
+    examSubject,
+  };
+
+  // Add the exam routine to the examRoutineData array
+  examRoutineData.push(examRoutine);
+
+  // Clear the form
+  addExamRoutineForm.reset();
+
+  // Show success message (optional)
+  alert('Exam routine added successfully!');
+});
+
+// Function to display exam routine
+function displayExamRoutine() {
+  const selectedClass = filterExamClass.value;
+  const selectedSubject = filterExamSubject.value;
+
+  // Clear the current exam routine table
+  examRoutineTable.innerHTML = '';
+
+  // Check if both class and subject are selected
+  if (selectedClass === '' || selectedSubject === '') {
+    return; // Do nothing if either class or subject is not selected
+  }
+
+  // Filter exam routines based on selected class and subject
+  const filteredExams = examRoutineData.filter((exam) => {
+    return (
+      exam.examClass === selectedClass &&
+      exam.examSubject === selectedSubject
+    );
+  });
+
+  // Display the filtered exam routines
+  if (filteredExams.length > 0) {
+    filteredExams.forEach((exam, index) => {
+      const row = examRoutineTable.insertRow();
+      row.innerHTML = `
+        <td>${exam.examType}</td>
+        <td>${exam.examDate}</td>
+        <td>${exam.examTime}</td>
+        <td>Class ${exam.examClass}</td>
+        <td>${exam.examSubject}</td>
+        <td><button onclick="deleteExamRoutine(${index})">Delete</button></td>
+      `;
+    });
+  } else {
+    // Show a message if no exams match the selected class and subject
+    examRoutineTable.innerHTML = `<tr><td colspan="6">No exams found for the selected class and subject.</td></tr>`;
+  }
+}
+
+// Function to delete an exam routine
+function deleteExamRoutine(index) {
+  examRoutineData.splice(index, 1); // Remove the exam routine from the array
+  displayExamRoutine(); // Refresh the table
+}
+
+// Add event listeners to the filter dropdowns
+filterExamClass.addEventListener('change', displayExamRoutine);
+filterExamSubject.addEventListener('change', displayExamRoutine);
+
+// Initial display of exam routine
+displayExamRoutine();
+    </script>
+
+</body>
+
+</html>
